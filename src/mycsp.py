@@ -74,20 +74,13 @@ class MyCSP(BaseEstimator, TransformerMixin):
             Average covariance matrix of shape (n_channels, n_channels)
         """
         n_epochs, n_channels, n_times = X.shape
-        covs = np.zeros((n_epochs, n_channels, n_channels))
+        # Vectorized covariance computation for all epochs
+        covs = np.einsum('ijk,ilk->ijl', X, X) / (n_times - 1)
 
-        for i in range(n_epochs):
-            # Compute covariance matrix for each epoch
-            # cov = X @ X.T / (n_times - 1)
-            epoch = X[i]
-            cov = np.dot(epoch, epoch.T) / (n_times - 1)
-
-            # Normalize by trace if requested
-            if self.norm_trace:
-                cov /= np.trace(cov)
-
-            covs[i] = cov
-
+        # Normalize by trace if requested (vectorized)
+        if self.norm_trace:
+            traces = np.trace(covs, axis1=1, axis2=2)
+            covs = covs / traces[:, np.newaxis, np.newaxis]
         # Average across epochs
         avg_cov = np.mean(covs, axis=0)
 
