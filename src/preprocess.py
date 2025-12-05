@@ -200,8 +200,11 @@ def preprocess_subject(subject: int, runs: list,
     # Apply bandpass filter
     raw = filter_raw(raw, l_freq, h_freq)
 
-    # Determine event mapping based on run type
-    run_type = get_run_type(runs[0])
+    # Validate all runs are of the same type
+    run_types = [get_run_type(r) for r in runs]
+    if len(set(run_types)) > 1:
+        raise ValueError(f"All runs must be of the same type, got {run_types}")
+    run_type = run_types[0]
     if run_type == 'hands_feet':
         event_id = EVENT_ID_HANDS_FEET
     elif run_type == 'left_right':
