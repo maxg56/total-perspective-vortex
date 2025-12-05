@@ -232,7 +232,9 @@ def save_model(pipeline, path: str, metadata: dict = None):
     }
 
     # Create directory if needed
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    dir_path = os.path.dirname(path)
+    if dir_path:  # Only create directory if path includes one
+        os.makedirs(dir_path, exist_ok=True)
 
     with open(path, 'wb') as f:
         pickle.dump(model_data, f)
