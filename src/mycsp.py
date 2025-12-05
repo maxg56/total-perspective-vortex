@@ -175,11 +175,8 @@ class MyCSP(BaseEstimator, TransformerMixin):
 
         # Apply spatial filters: X_filtered = W.T @ X
         # Shape: (n_epochs, n_components, n_times)
-        X_filtered = np.zeros((n_epochs, n_components, X.shape[2]))
-
-        for i in range(n_epochs):
-            X_filtered[i] = np.dot(self.W_.T, X[i])
-
+        # Vectorized spatial filtering using einsum
+        X_filtered = np.einsum('ck,nkt->nct', self.W_.T, X)
         # Compute variance of each component
         # Shape: (n_epochs, n_components)
         variances = np.var(X_filtered, axis=2)
