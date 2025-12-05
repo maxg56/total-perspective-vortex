@@ -31,7 +31,7 @@ import argparse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from train import train_subject, compare_pipelines, train_and_evaluate
-from predict import run_prediction, simulate_realtime_prediction
+from predict import run_prediction
 from preprocess import preprocess_subject, get_run_type
 from pipeline import list_pipelines
 
