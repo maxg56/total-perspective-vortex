@@ -76,8 +76,56 @@ src/
 ├── train.py        # Training and cross-validation
 └── predict.py      # Real-time prediction simulation
 
+tests/
+├── conftest.py         # Pytest fixtures and synthetic data generators
+├── test_preprocess.py  # Tests for EEG preprocessing
+├── test_features.py    # Tests for feature extractors
+├── test_mycsp.py       # Tests for CSP and PCA implementations
+├── test_pipeline.py    # Tests for pipeline construction
+├── test_train.py       # Tests for training and model persistence
+└── test_predict.py     # Tests for prediction functions
+
 models/             # Saved models directory
 ```
+
+## Testing
+
+The project includes a comprehensive test suite with 148 tests using pytest.
+
+### Running Tests
+
+```bash
+# Install test dependencies
+pip install pytest pytest-mock
+
+# Run all tests
+pytest tests/ -v
+
+# Run specific test file
+pytest tests/test_mycsp.py -v
+
+# Run with coverage
+pip install pytest-cov
+pytest tests/ --cov=src --cov-report=html
+```
+
+### Test Coverage
+
+| Module | Tests | Description |
+|--------|-------|-------------|
+| `test_preprocess.py` | 11 | Run type identification, event IDs, parameter validation |
+| `test_features.py` | 29 | PSD, BandPower, LogVariance, Flatten extractors |
+| `test_mycsp.py` | 31 | CSP fitting, transform, covariance computation, PCA |
+| `test_pipeline.py` | 26 | All 6 pipeline configurations, sklearn compatibility |
+| `test_train.py` | 24 | Cross-validation, holdout training, model save/load |
+| `test_predict.py` | 27 | Single/batch prediction, real-time simulation |
+
+### Synthetic Data
+
+Tests use synthetic EEG data to avoid downloading from Physionet during testing. The fixtures in `conftest.py` generate:
+- 2-class EEG data with different spatial patterns
+- Configurable dimensions (epochs, channels, time points)
+- Pre-trained pipelines for prediction tests
 
 ## Custom CSP Implementation
 
