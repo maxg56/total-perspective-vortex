@@ -13,7 +13,7 @@ import numpy as np
 from sklearn.model_selection import cross_val_score, StratifiedKFold, train_test_split
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
-from preprocess import preprocess_subject, load_multiple_subjects, get_run_type
+from preprocess import preprocess_subject, get_run_type
 from pipeline import get_pipeline, list_pipelines
 
 
