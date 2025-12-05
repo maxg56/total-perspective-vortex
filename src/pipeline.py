@@ -14,7 +14,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
 from mycsp import MyCSP, MyPCA
-from features import PSDExtractor, BandPowerExtractor, LogVarianceExtractor, FlattenExtractor
+from features import PSDExtractor, BandPowerExtractor, FlattenExtractor
 
 
 def build_csp_lda_pipeline(n_components: int = 6, reg: float = None) -> Pipeline:
