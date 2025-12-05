@@ -306,7 +306,8 @@ def train_subject(subject: int, runs: list,
 
     print(f"Data shape: {X.shape}")
     print(f"Labels: {np.unique(y)}")
-    print(f"Class distribution: {np.bincount(y)[1:]}")
+    unique, counts = np.unique(y, return_counts=True)
+    print(f"Class distribution: {dict(zip(unique, counts))}")
 
     # Train and evaluate
     pipeline, scores = train_and_evaluate(
