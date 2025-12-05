@@ -127,7 +127,7 @@ def simulate_realtime_prediction(pipeline, X: np.ndarray, y: np.ndarray,
 
         if verbose:
             status = "True" if correct[i] else "False"
-            time_ok = "" if pred_time < max_time else " [SLOW]"
+            time_ok = "" if pred_time <= max_time else " [SLOW]"
             print(f"epoch {i:02d}: [{pred}] [{y[i]}] {status}{time_ok}")
 
         # Optional delay for visualization
