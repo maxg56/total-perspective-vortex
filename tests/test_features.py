@@ -8,7 +8,6 @@ Tests feature extraction classes:
 - FlattenExtractor
 """
 
-import pytest
 import numpy as np
 
 
