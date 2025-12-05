@@ -7,7 +7,6 @@ Tests prediction functions:
 - simulate_realtime_prediction
 """
 
-import pytest
 import numpy as np
 import time
 
