@@ -7,7 +7,6 @@ Tests EEG data preprocessing functions including:
 """
 
 import pytest
-import numpy as np
 
 
 class TestGetRunType:
