@@ -8,16 +8,21 @@ Handles:
 """
 
 import os
-import pickle
+import logging
+import joblib
 import numpy as np
 from sklearn.model_selection import cross_val_score, StratifiedKFold, train_test_split
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
+from constants import RANDOM_STATE, TARGET_ACCURACY
 from preprocess import preprocess_subject, get_run_type
 from pipeline import get_pipeline, list_pipelines
 from visualization import (plot_cv_scores, plot_confusion_matrix,
                            plot_pipeline_comparison, plot_cv_detailed,
                            plot_training_summary)
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 def train_and_evaluate(X: np.ndarray, y: np.ndarray,
@@ -60,7 +65,7 @@ def train_and_evaluate(X: np.ndarray, y: np.ndarray,
     pipeline = get_pipeline(pipeline_name, **pipeline_kwargs)
 
     # Cross-validation
-    cv_splitter = StratifiedKFold(n_splits=cv, shuffle=True, random_state=42)
+    cv_splitter = StratifiedKFold(n_splits=cv, shuffle=True, random_state=RANDOM_STATE)
     scores = cross_val_score(pipeline, X, y, cv=cv_splitter, scoring='accuracy')
 
     if verbose:
@@ -72,10 +77,10 @@ def train_and_evaluate(X: np.ndarray, y: np.ndarray,
         print(f"Min: {scores.min():.4f}, Max: {scores.max():.4f}")
 
         # Check if target achieved
-        if scores.mean() >= 0.60:
-            print(f"Target accuracy (60%) ACHIEVED")
+        if scores.mean() >= TARGET_ACCURACY:
+            print(f"Target accuracy ({TARGET_ACCURACY:.0%}) ACHIEVED")
         else:
-            print(f"Target accuracy (60%) NOT achieved - need {0.60 - scores.mean():.4f} more")
+            print(f"Target accuracy ({TARGET_ACCURACY:.0%}) NOT achieved - need {TARGET_ACCURACY - scores.mean():.4f} more")
 
     # Fit on all data for final model
     pipeline.fit(X, y)
@@ -131,7 +136,7 @@ def train_with_holdout(X: np.ndarray, y: np.ndarray,
     """
     # Split into train and test
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=42, stratify=y
+        X, y, test_size=test_size, random_state=RANDOM_STATE, stratify=y
     )
 
     if verbose:
@@ -143,7 +148,7 @@ def train_with_holdout(X: np.ndarray, y: np.ndarray,
     pipeline = get_pipeline(pipeline_name, **pipeline_kwargs)
 
     # Cross-validation on training set
-    cv_splitter = StratifiedKFold(n_splits=cv, shuffle=True, random_state=42)
+    cv_splitter = StratifiedKFold(n_splits=cv, shuffle=True, random_state=RANDOM_STATE)
     cv_scores = cross_val_score(pipeline, X_train, y_train, cv=cv_splitter, scoring='accuracy')
 
     if verbose:
@@ -167,10 +172,10 @@ def train_with_holdout(X: np.ndarray, y: np.ndarray,
         print(confusion_matrix(y_test, y_pred))
 
         # Check if target achieved
-        if test_accuracy >= 0.60:
-            print(f"\nTarget accuracy (60%) ACHIEVED on test set")
+        if test_accuracy >= TARGET_ACCURACY:
+            print(f"\nTarget accuracy ({TARGET_ACCURACY:.0%}) ACHIEVED on test set")
         else:
-            print(f"\nTarget accuracy (60%) NOT achieved on test set")
+            print(f"\nTarget accuracy ({TARGET_ACCURACY:.0%}) NOT achieved on test set")
 
     # Plot results
     if plot:
@@ -230,7 +235,7 @@ def compare_pipelines(X: np.ndarray, y: np.ndarray,
     for name in list_pipelines():
         try:
             pipeline = get_pipeline(name)
-            cv_splitter = StratifiedKFold(n_splits=cv, shuffle=True, random_state=42)
+            cv_splitter = StratifiedKFold(n_splits=cv, shuffle=True, random_state=RANDOM_STATE)
             scores = cross_val_score(pipeline, X, y, cv=cv_splitter, scoring='accuracy')
             results[name] = {
                 'mean': scores.mean(),
@@ -242,7 +247,8 @@ def compare_pipelines(X: np.ndarray, y: np.ndarray,
                 print(f"\n{name}:")
                 print(f"  Mean accuracy: {scores.mean():.4f} (+/- {scores.std() * 2:.4f})")
 
-        except Exception as e:
+        except (ValueError, RuntimeError, TypeError) as e:
+            logger.warning(f"Pipeline {name} failed: {e}")
             if verbose:
                 print(f"\n{name}: FAILED - {e}")
             results[name] = None
@@ -285,14 +291,14 @@ def save_model(pipeline, path: str, metadata: dict = None):
         'metadata': metadata or {}
     }
 
-    # Create directory if needed
-    dir_path = os.path.dirname(path)
-    if dir_path:  # Only create directory if path includes one
-        os.makedirs(dir_path, exist_ok=True)
+    # Create directory if needed (handle both absolute and relative paths)
+    dir_path = os.path.dirname(path) or '.'
+    os.makedirs(dir_path, exist_ok=True)
 
-    with open(path, 'wb') as f:
-        pickle.dump(model_data, f)
+    # Use joblib for safer and more efficient serialization
+    joblib.dump(model_data, path)
 
+    logger.info(f"Model saved to: {path}")
     print(f"Model saved to: {path}")
 
 
@@ -312,8 +318,8 @@ def load_model(path: str) -> tuple:
     metadata : dict
         Metadata saved with the model
     """
-    with open(path, 'rb') as f:
-        model_data = pickle.load(f)
+    # Use joblib for loading
+    model_data = joblib.load(path)
 
     return model_data['pipeline'], model_data['metadata']
 

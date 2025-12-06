@@ -11,11 +11,17 @@ Provides plotting functions for:
 import numpy as np
 import os
 import matplotlib
-# Use non-interactive backend by default
-matplotlib.use('Agg')
+
+# Use non-interactive backend only in headless environments
+# This allows interactive plotting when DISPLAY is available
+if os.environ.get('DISPLAY') is None:
+    matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from typing import Dict, List, Optional
+
+from constants import TARGET_ACCURACY
 
 
 def _finalize_plot(fig, save_path: Optional[str] = None, show: bool = False):
@@ -64,8 +70,8 @@ def plot_cv_scores(scores: np.ndarray,
                label=f'Mean: {mean_score:.4f}')
 
     # Add target line
-    ax.axhline(0.60, color='green', linestyle='--', linewidth=2,
-               label='Target: 0.60')
+    ax.axhline(TARGET_ACCURACY, color='green', linestyle='--', linewidth=2,
+               label=f'Target: {TARGET_ACCURACY:.2f}')
 
     # Styling
     ax.set_xlabel('Fold', fontsize=12)
@@ -182,8 +188,8 @@ def plot_pipeline_comparison(results: Dict[str, Dict],
                   error_kw={'linewidth': 2, 'ecolor': 'red'})
 
     # Add target line
-    ax.axhline(0.60, color='green', linestyle='--', linewidth=2,
-               label='Target: 0.60')
+    ax.axhline(TARGET_ACCURACY, color='green', linestyle='--', linewidth=2,
+               label=f'Target: {TARGET_ACCURACY:.2f}')
 
     # Styling
     ax.set_xlabel('Pipeline', fontsize=12)
@@ -248,8 +254,8 @@ def plot_cv_detailed(results: Dict[str, Dict],
         patch.set_alpha(0.7)
 
     # Add target line
-    ax.axhline(0.60, color='green', linestyle='--', linewidth=2,
-               label='Target: 0.60')
+    ax.axhline(TARGET_ACCURACY, color='green', linestyle='--', linewidth=2,
+               label=f'Target: {TARGET_ACCURACY:.2f}')
 
     # Styling
     ax.set_xlabel('Pipeline', fontsize=12)
@@ -352,8 +358,8 @@ def plot_training_summary(cv_scores: np.ndarray,
 
     bars = ax3.bar(classes, class_acc, alpha=0.7, color='coral',
                    edgecolor='black')
-    ax3.axhline(0.60, color='green', linestyle='--', linewidth=2,
-               label='Target: 0.60')
+    ax3.axhline(TARGET_ACCURACY, color='green', linestyle='--', linewidth=2,
+               label=f'Target: {TARGET_ACCURACY:.2f}')
     ax3.set_xlabel('Class', fontsize=10)
     ax3.set_ylabel('Accuracy', fontsize=10)
     ax3.set_title('Per-Class Accuracy', fontsize=12, fontweight='bold')

@@ -11,6 +11,8 @@ import numpy as np
 from scipy import signal
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from constants import EPSILON
+
 
 class PSDExtractor(BaseEstimator, TransformerMixin):
     """
@@ -186,7 +188,7 @@ class LogVarianceExtractor(BaseEstimator, TransformerMixin):
             variances = X
 
         # Log transform (add small epsilon to avoid log(0))
-        log_var = np.log(variances + 1e-10)
+        log_var = np.log(variances + EPSILON)
 
         return log_var
 

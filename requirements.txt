@@ -10,5 +10,8 @@ scikit-learn>=1.0.0
 # EEG data processing
 mne>=1.0.0
 
-# Optional: for visualization (not required for core functionality)
-# matplotlib>=3.4.0
+# Visualization (required for plotting functions)
+matplotlib>=3.4.0
+
+# Model persistence (safer alternative to pickle)
+joblib>=1.0.0

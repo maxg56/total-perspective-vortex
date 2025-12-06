@@ -9,11 +9,16 @@ Handles:
 
 import os
 import time
+import logging
 import numpy as np
 from sklearn.metrics import accuracy_score
 
+from constants import MAX_PREDICTION_TIME
 from preprocess import preprocess_subject
 from train import load_model
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 def predict_single_epoch(pipeline, epoch: np.ndarray) -> tuple:
@@ -72,7 +77,7 @@ def predict_batch(pipeline, X: np.ndarray) -> tuple:
 
 def simulate_realtime_prediction(pipeline, X: np.ndarray, y: np.ndarray,
                                   delay: float = 0.0,
-                                  max_time: float = 2.0,
+                                  max_time: float = MAX_PREDICTION_TIME,
                                   verbose: bool = True) -> dict:
     """
     Simulate real-time prediction of EEG epochs.

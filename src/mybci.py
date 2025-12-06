@@ -26,14 +26,23 @@ Examples:
 import os
 import sys
 import argparse
+import logging
 
 # Add src directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from constants import MIN_SUBJECT, MAX_SUBJECT, VALID_RUNS, TARGET_ACCURACY
 from train import train_subject, compare_pipelines
 from predict import run_prediction
 from preprocess import preprocess_subject, get_run_type
 from pipeline import list_pipelines
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 def parse_args():
@@ -100,14 +109,15 @@ Examples:
 def validate_args(args):
     """Validate command line arguments."""
     # Validate subject number
-    if args.subject < 1 or args.subject > 109:
-        print(f"Error: Subject must be between 1 and 109, got {args.subject}")
+    if args.subject < MIN_SUBJECT or args.subject > MAX_SUBJECT:
+        logger.error(f"Subject must be between {MIN_SUBJECT} and {MAX_SUBJECT}, got {args.subject}")
+        print(f"Error: Subject must be between {MIN_SUBJECT} and {MAX_SUBJECT}, got {args.subject}")
         sys.exit(1)
 
     # Validate run number
-    valid_runs = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-    if args.run not in valid_runs:
-        print(f"Error: Run must be one of {valid_runs}, got {args.run}")
+    if args.run not in VALID_RUNS:
+        logger.error(f"Run must be one of {VALID_RUNS}, got {args.run}")
+        print(f"Error: Run must be one of {VALID_RUNS}, got {args.run}")
         sys.exit(1)
 
 
@@ -171,10 +181,10 @@ def mode_train(args):
     print(f"Cross-validation scores: {scores}")
     print(f"Mean accuracy: {scores.mean():.4f} (+/- {scores.std() * 2:.4f})")
 
-    if scores.mean() >= 0.60:
-        print("\n*** TARGET ACCURACY (60%) ACHIEVED! ***")
+    if scores.mean() >= TARGET_ACCURACY:
+        print(f"\n*** TARGET ACCURACY ({TARGET_ACCURACY:.0%}) ACHIEVED! ***")
     else:
-        print(f"\n*** Target accuracy not reached (need {0.60 - scores.mean():.4f} more) ***")
+        print(f"\n*** Target accuracy not reached (need {TARGET_ACCURACY - scores.mean():.4f} more) ***")
 
     return 0
 
@@ -202,8 +212,8 @@ def mode_predict(args):
     print(f"Max prediction time: {results['max_time']*1000:.2f} ms")
     print(f"Time limit (2s): {'PASSED' if results['within_time_limit'] else 'FAILED'}")
 
-    if results['accuracy'] >= 0.60:
-        print("\n*** TARGET ACCURACY (60%) ACHIEVED! ***")
+    if results['accuracy'] >= TARGET_ACCURACY:
+        print(f"\n*** TARGET ACCURACY ({TARGET_ACCURACY:.0%}) ACHIEVED! ***")
     else:
         print(f"\n*** Target accuracy not reached ***")
 
@@ -222,13 +232,16 @@ def main():
         elif args.mode == 'predict':
             return mode_predict(args)
     except KeyboardInterrupt:
+        logger.info("Interrupted by user")
         print("\nInterrupted by user")
         return 1
     except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
         print(f"\nError: {e}")
         print("Have you trained a model first? Run: python mybci.py <subject> <run> train")
         return 1
     except Exception as e:
+        logger.exception(f"Unexpected error: {e}")
         print(f"\nError: {e}")
         import traceback
         traceback.print_exc()

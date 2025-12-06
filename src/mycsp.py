@@ -26,6 +26,8 @@ import numpy as np
 from scipy import linalg
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from constants import EPSILON, EPSILON_SMALL
+
 
 class MyCSP(BaseEstimator, TransformerMixin):
     """
@@ -128,10 +130,9 @@ class MyCSP(BaseEstimator, TransformerMixin):
             eigenvalues, eigenvectors = linalg.eigh(cov1, cov_composite)
         except linalg.LinAlgError:
             # If decomposition fails, add regularization
-            eps = 1e-6
             eigenvalues, eigenvectors = linalg.eigh(
-                cov1 + eps * np.eye(cov1.shape[0]),
-                cov_composite + eps * np.eye(cov_composite.shape[0])
+                cov1 + EPSILON_SMALL * np.eye(cov1.shape[0]),
+                cov_composite + EPSILON_SMALL * np.eye(cov_composite.shape[0])
             )
 
         # Sort eigenvalues and eigenvectors in descending order
@@ -181,12 +182,13 @@ class MyCSP(BaseEstimator, TransformerMixin):
         # Shape: (n_epochs, n_components)
         variances = np.var(X_filtered, axis=2)
 
-        # Normalize variances
-        variances /= variances.sum(axis=1, keepdims=True)
+        # Normalize variances (protect against division by zero)
+        variance_sum = variances.sum(axis=1, keepdims=True)
+        variances /= (variance_sum + EPSILON)
 
         if self.log:
             # Log-transform (common for CSP features)
-            return np.log(variances + 1e-10)
+            return np.log(variances + EPSILON)
         else:
             return variances
 
