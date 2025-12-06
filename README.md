@@ -55,6 +55,39 @@ python mybci.py 4 14 predict
 --model-dir        Directory for saved models (default: models)
 ```
 
+### Visualization
+
+The training process automatically generates visualizations to track performance:
+
+```bash
+# Generate plots during training (saved to plots/ directory)
+python demo_plots.py 4 14
+```
+
+Available visualizations:
+- **Cross-validation scores**: Bar chart showing accuracy for each CV fold
+- **Confusion matrix**: Heatmap of prediction results on test set
+- **Training summary**: Comprehensive 3-panel view with CV scores, confusion matrix, and per-class accuracy
+- **Pipeline comparison**: Compare performance of different models (when using --compare)
+
+Programmatic usage:
+
+```python
+from src.train import train_with_holdout
+from src.preprocess import preprocess_subject
+
+# Load data
+X, y, epochs = preprocess_subject(subject=4, runs=[14])
+
+# Train with visualizations
+pipeline, cv_scores, test_acc = train_with_holdout(
+    X, y,
+    pipeline_name='csp_lda',
+    plot=True,        # Enable plotting
+    save_plots=True   # Save plots to disk
+)
+```
+
 ## Run Types
 
 | Run Numbers | Task Type |
@@ -68,13 +101,14 @@ python mybci.py 4 14 predict
 
 ```
 src/
-├── mybci.py        # Main CLI entry point
-├── preprocess.py   # Data loading and filtering
-├── features.py     # Feature extraction (PSD, band power)
-├── mycsp.py        # Custom CSP implementation
-├── pipeline.py     # sklearn pipeline construction
-├── train.py        # Training and cross-validation
-└── predict.py      # Real-time prediction simulation
+├── mybci.py          # Main CLI entry point
+├── preprocess.py     # Data loading and filtering
+├── features.py       # Feature extraction (PSD, band power)
+├── mycsp.py          # Custom CSP implementation
+├── pipeline.py       # sklearn pipeline construction
+├── train.py          # Training and cross-validation
+├── predict.py        # Real-time prediction simulation
+└── visualization.py  # Plotting functions for results
 
 tests/
 ├── conftest.py         # Pytest fixtures and synthetic data generators
@@ -86,6 +120,8 @@ tests/
 └── test_predict.py     # Tests for prediction functions
 
 models/             # Saved models directory
+plots/              # Generated visualization plots
+demo_plots.py       # Demonstration script for visualizations
 ```
 
 ## Testing

@@ -15,12 +15,17 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 
 from preprocess import preprocess_subject, get_run_type
 from pipeline import get_pipeline, list_pipelines
+from visualization import (plot_cv_scores, plot_confusion_matrix,
+                           plot_pipeline_comparison, plot_cv_detailed,
+                           plot_training_summary)
 
 
 def train_and_evaluate(X: np.ndarray, y: np.ndarray,
                        pipeline_name: str = 'csp_lda',
                        cv: int = 5,
                        verbose: bool = True,
+                       plot: bool = True,
+                       save_plots: bool = False,
                        **pipeline_kwargs) -> tuple:
     """
     Train a pipeline with cross-validation.
@@ -37,6 +42,10 @@ def train_and_evaluate(X: np.ndarray, y: np.ndarray,
         Number of cross-validation folds
     verbose : bool
         Whether to print results
+    plot : bool
+        Whether to plot results
+    save_plots : bool
+        Whether to save plots to disk
     **pipeline_kwargs : dict
         Additional arguments for the pipeline
 
@@ -71,6 +80,11 @@ def train_and_evaluate(X: np.ndarray, y: np.ndarray,
     # Fit on all data for final model
     pipeline.fit(X, y)
 
+    # Plot results
+    if plot:
+        save_path = f"plots/cv_scores_{pipeline_name}.png" if save_plots else None
+        plot_cv_scores(scores, title=f"CV Scores: {pipeline_name}", save_path=save_path)
+
     return pipeline, scores
 
 
@@ -79,6 +93,8 @@ def train_with_holdout(X: np.ndarray, y: np.ndarray,
                        test_size: float = 0.2,
                        cv: int = 5,
                        verbose: bool = True,
+                       plot: bool = True,
+                       save_plots: bool = False,
                        **pipeline_kwargs) -> tuple:
     """
     Train a pipeline with holdout test set.
@@ -97,6 +113,10 @@ def train_with_holdout(X: np.ndarray, y: np.ndarray,
         Number of cross-validation folds on training set
     verbose : bool
         Whether to print results
+    plot : bool
+        Whether to plot results
+    save_plots : bool
+        Whether to save plots to disk
     **pipeline_kwargs : dict
         Additional arguments for the pipeline
 
@@ -152,11 +172,31 @@ def train_with_holdout(X: np.ndarray, y: np.ndarray,
         else:
             print(f"\nTarget accuracy (60%) NOT achieved on test set")
 
+    # Plot results
+    if plot:
+        # Plot CV scores
+        cv_save_path = f"plots/cv_scores_{pipeline_name}_holdout.png" if save_plots else None
+        plot_cv_scores(cv_scores, title=f"CV Scores (Training Set): {pipeline_name}",
+                      save_path=cv_save_path)
+
+        # Plot confusion matrix
+        cm_save_path = f"plots/confusion_matrix_{pipeline_name}.png" if save_plots else None
+        plot_confusion_matrix(y_test, y_pred,
+                            title=f"Confusion Matrix (Test Set): {pipeline_name}",
+                            save_path=cm_save_path)
+
+        # Plot comprehensive summary
+        summary_save_path = f"plots/training_summary_{pipeline_name}.png" if save_plots else None
+        plot_training_summary(cv_scores, y_test, y_pred,
+                            pipeline_name=pipeline_name,
+                            save_path=summary_save_path)
+
     return pipeline, cv_scores, test_accuracy
 
 
 def compare_pipelines(X: np.ndarray, y: np.ndarray,
-                      cv: int = 5, verbose: bool = True) -> dict:
+                      cv: int = 5, verbose: bool = True,
+                      plot: bool = True, save_plots: bool = False) -> dict:
     """
     Compare all available pipelines.
 
@@ -170,6 +210,10 @@ def compare_pipelines(X: np.ndarray, y: np.ndarray,
         Number of cross-validation folds
     verbose : bool
         Whether to print results
+    plot : bool
+        Whether to plot results
+    save_plots : bool
+        Whether to save plots to disk
 
     Returns
     -------
@@ -209,6 +253,16 @@ def compare_pipelines(X: np.ndarray, y: np.ndarray,
         best = max(valid_results.items(), key=lambda x: x[1]['mean'])
         if verbose:
             print(f"\nBest pipeline: {best[0]} with {best[1]['mean']:.4f} accuracy")
+
+    # Plot results
+    if plot and valid_results:
+        # Bar plot comparison
+        comp_save_path = f"plots/pipeline_comparison.png" if save_plots else None
+        plot_pipeline_comparison(results, save_path=comp_save_path)
+
+        # Detailed box plot
+        detail_save_path = f"plots/pipeline_comparison_detailed.png" if save_plots else None
+        plot_cv_detailed(results, save_path=detail_save_path)
 
     return results
 
@@ -268,6 +322,8 @@ def train_subject(subject: int, runs: list,
                   pipeline_name: str = 'csp_lda',
                   model_dir: str = 'models',
                   cv: int = 5,
+                  plot: bool = True,
+                  save_plots: bool = False,
                   **pipeline_kwargs) -> tuple:
     """
     Complete training pipeline for a subject.
@@ -284,6 +340,10 @@ def train_subject(subject: int, runs: list,
         Directory to save the model
     cv : int
         Number of cross-validation folds
+    plot : bool
+        Whether to plot results
+    save_plots : bool
+        Whether to save plots to disk
     **pipeline_kwargs : dict
         Additional arguments for the pipeline
 
@@ -311,7 +371,8 @@ def train_subject(subject: int, runs: list,
 
     # Train and evaluate
     pipeline, scores = train_and_evaluate(
-        X, y, pipeline_name=pipeline_name, cv=cv, **pipeline_kwargs
+        X, y, pipeline_name=pipeline_name, cv=cv,
+        plot=plot, save_plots=save_plots, **pipeline_kwargs
     )
 
     # Save model

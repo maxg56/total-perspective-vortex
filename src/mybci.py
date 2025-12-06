@@ -88,6 +88,12 @@ Examples:
     parser.add_argument('--quiet', '-q', action='store_true',
                         help='Reduce output verbosity')
 
+    # Visualization options
+    parser.add_argument('--no-plot', action='store_true',
+                        help='Disable plot generation')
+    parser.add_argument('--save-plots', action='store_true',
+                        help='Save plots to disk (plots/ directory)')
+
     return parser.parse_args()
 
 
@@ -120,6 +126,8 @@ def print_header(args):
 def mode_train(args):
     """Execute training mode."""
     verbose = not args.quiet
+    plot = not args.no_plot
+    save_plots = args.save_plots
 
     if args.compare:
         # Compare all pipelines
@@ -128,7 +136,8 @@ def mode_train(args):
         print(f"Data shape: {X.shape}")
         print(f"Labels: {len(y)} epochs")
 
-        results = compare_pipelines(X, y, cv=args.cv, verbose=verbose)
+        results = compare_pipelines(X, y, cv=args.cv, verbose=verbose,
+                                   plot=plot, save_plots=save_plots)
 
         # Find best and train with it
         valid_results = {k: v for k, v in results.items() if v is not None}
@@ -150,6 +159,8 @@ def mode_train(args):
         pipeline_name=args.pipeline,
         model_dir=args.model_dir,
         cv=args.cv,
+        plot=plot,
+        save_plots=save_plots,
         **pipeline_kwargs
     )
 
