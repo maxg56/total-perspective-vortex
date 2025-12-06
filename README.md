@@ -177,6 +177,114 @@ The `mycsp.py` module contains a custom implementation of Common Spatial Pattern
 - **Minimum accuracy**: 60% on test data
 - **Prediction time**: < 2 seconds per epoch
 
+## Development
+
+### Setup Development Environment
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd total-perspective-vortex
+
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies (including development tools)
+pip install -r requirements.txt
+
+# Install pre-commit hooks
+pre-commit install
+```
+
+### Code Quality Tools
+
+This project uses several tools to maintain code quality:
+
+- **flake8**: Style guide enforcement (PEP 8)
+- **mypy**: Static type checking
+- **pre-commit**: Automatic checks before commits
+
+### Running Code Quality Checks
+
+```bash
+# Run flake8
+flake8 src/ tests/
+
+# Run mypy for type checking
+mypy src/ --ignore-missing-imports
+
+# Run all pre-commit hooks manually
+pre-commit run --all-files
+
+# Run tests
+pytest tests/ -v
+```
+
+### Pre-commit Hooks
+
+Pre-commit hooks automatically run on every commit. They will:
+- Check for trailing whitespace
+- Ensure files end with newline
+- Validate YAML files
+- Run flake8 for style checking
+- Run mypy for type checking
+
+If any check fails, the commit will be rejected. Fix the issues and commit again.
+
+### Type Hints
+
+All modules include comprehensive type hints for better code documentation and static analysis:
+
+```python
+from typing import List, Tuple, Optional
+from numpy.typing import NDArray
+import numpy as np
+
+def preprocess_subject(
+    subject: int,
+    runs: List[int]
+) -> Tuple[NDArray[np.float64], NDArray[np.int64], mne.Epochs]:
+    ...
+```
+
+### Configuration Files
+
+- `.flake8`: Flake8 configuration (line length, ignored errors)
+- `setup.cfg`: Mypy configuration
+- `.pre-commit-config.yaml`: Pre-commit hooks configuration
+
+### Contributing Guidelines
+
+1. **Create a feature branch**
+   ```bash
+   git checkout -b feature/my-feature
+   ```
+
+2. **Make your changes**
+   - Follow PEP 8 style guide
+   - Add type hints to new functions
+   - Write docstrings (NumPy style)
+   - Add tests for new functionality
+
+3. **Run quality checks**
+   ```bash
+   pre-commit run --all-files
+   pytest tests/ -v
+   ```
+
+4. **Commit your changes**
+   ```bash
+   git add .
+   git commit -m "feat: add new feature"
+   ```
+   Pre-commit hooks will run automatically.
+
+5. **Push and create Pull Request**
+   ```bash
+   git push origin feature/my-feature
+   ```
+
 ## License
 
 MIT License

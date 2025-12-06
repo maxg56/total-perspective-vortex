@@ -18,14 +18,14 @@ if os.environ.get('DISPLAY') is None:
     matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import confusion_matrix
 from typing import Dict, List, Optional
 
 from constants import TARGET_ACCURACY
 
 
 def _finalize_plot(fig, save_path: Optional[str] = None, show: bool = False):
-    """Helper function to handle plot saving and closing."""
+    """Handle plot saving and closing."""
     if save_path:
         # Create directory if needed
         save_dir = os.path.dirname(save_path)
@@ -62,7 +62,7 @@ def plot_cv_scores(scores: np.ndarray,
 
     # Bar plot for each fold
     folds = np.arange(1, len(scores) + 1)
-    bars = ax.bar(folds, scores, alpha=0.7, color='steelblue', edgecolor='black')
+    ax.bar(folds, scores, alpha=0.7, color='steelblue', edgecolor='black')
 
     # Add mean line
     mean_score = scores.mean()
@@ -134,9 +134,11 @@ def plot_confusion_matrix(y_true: np.ndarray,
     # Add text annotations
     for i in range(len(classes)):
         for j in range(len(classes)):
-            text = ax.text(j, i, str(cm[i, j]),
-                          ha="center", va="center", color="black" if cm[i, j] < cm.max() / 2 else "white",
-                          fontsize=14, fontweight='bold')
+            txt_color = "black" if cm[i, j] < cm.max() / 2 else "white"
+            ax.text(
+                j, i, str(cm[i, j]),
+                ha="center", va="center", color=txt_color,
+                fontsize=14, fontweight='bold')
 
     ax.set_xlabel('Predicted Label', fontsize=12)
     ax.set_ylabel('True Label', fontsize=12)
@@ -171,9 +173,10 @@ def plot_pipeline_comparison(results: Dict[str, Dict],
         return None
 
     # Sort by mean score
-    sorted_results = sorted(valid_results.items(),
-                           key=lambda x: x[1]['mean'],
-                           reverse=True)
+    sorted_results = sorted(
+        valid_results.items(),
+        key=lambda x: x[1]['mean'],
+        reverse=True)
 
     names = [item[0] for item in sorted_results]
     means = [item[1]['mean'] for item in sorted_results]
@@ -183,9 +186,10 @@ def plot_pipeline_comparison(results: Dict[str, Dict],
 
     # Bar plot with error bars
     x_pos = np.arange(len(names))
-    bars = ax.bar(x_pos, means, yerr=stds, alpha=0.7,
-                  color='steelblue', edgecolor='black',
-                  error_kw={'linewidth': 2, 'ecolor': 'red'})
+    bars = ax.bar(
+        x_pos, means, yerr=stds, alpha=0.7,
+        color='steelblue', edgecolor='black',
+        error_kw={'linewidth': 2, 'ecolor': 'red'})
 
     # Add target line
     ax.axhline(TARGET_ACCURACY, color='green', linestyle='--', linewidth=2,
@@ -245,7 +249,7 @@ def plot_cv_detailed(results: Dict[str, Dict],
     data = [v['scores'] for v in valid_results.values()]
     names = list(valid_results.keys())
 
-    bp = ax.boxplot(data, labels=names, patch_artist=True,
+    bp = ax.boxplot(data, tick_labels=names, patch_artist=True,
                     showmeans=True, meanline=True)
 
     # Color the boxes
@@ -270,13 +274,14 @@ def plot_cv_detailed(results: Dict[str, Dict],
     return _finalize_plot(fig, save_path, show)
 
 
-def plot_training_summary(cv_scores: np.ndarray,
-                         y_true: np.ndarray,
-                         y_pred: np.ndarray,
-                         class_names: Optional[List[str]] = None,
-                         pipeline_name: str = "Pipeline",
-                         save_path: Optional[str] = None,
-                         show: bool = False):
+def plot_training_summary(
+        cv_scores: np.ndarray,
+        y_true: np.ndarray,
+        y_pred: np.ndarray,
+        class_names: Optional[List[str]] = None,
+        pipeline_name: str = "Pipeline",
+        save_path: Optional[str] = None,
+        show: bool = False):
     """
     Create a comprehensive summary plot with multiple subplots.
 
@@ -300,13 +305,15 @@ def plot_training_summary(cv_scores: np.ndarray,
     # Subplot 1: CV Scores
     ax1 = plt.subplot(1, 3, 1)
     folds = np.arange(1, len(cv_scores) + 1)
-    bars = ax1.bar(folds, cv_scores, alpha=0.7, color='steelblue',
-                   edgecolor='black')
+    ax1.bar(folds, cv_scores, alpha=0.7, color='steelblue',
+            edgecolor='black')
     mean_score = cv_scores.mean()
-    ax1.axhline(mean_score, color='red', linestyle='--', linewidth=2,
-               label=f'Mean: {mean_score:.4f}')
-    ax1.axhline(0.60, color='green', linestyle='--', linewidth=2,
-               label='Target: 0.60')
+    ax1.axhline(
+        mean_score, color='red', linestyle='--', linewidth=2,
+        label=f'Mean: {mean_score:.4f}')
+    ax1.axhline(
+        0.60, color='green', linestyle='--', linewidth=2,
+        label='Target: 0.60')
     ax1.set_xlabel('Fold', fontsize=10)
     ax1.set_ylabel('Accuracy', fontsize=10)
     ax1.set_title('Cross-Validation Scores', fontsize=12, fontweight='bold')
@@ -316,8 +323,9 @@ def plot_training_summary(cv_scores: np.ndarray,
     ax1.grid(axis='y', alpha=0.3)
 
     for fold, score in zip(folds, cv_scores):
-        ax1.text(fold, score + 0.02, f'{score:.3f}',
-                ha='center', va='bottom', fontsize=8)
+        ax1.text(
+            fold, score + 0.02, f'{score:.3f}',
+            ha='center', va='bottom', fontsize=8)
 
     # Subplot 2: Confusion Matrix
     ax2 = plt.subplot(1, 3, 2)
@@ -338,10 +346,12 @@ def plot_training_summary(cv_scores: np.ndarray,
     # Add text annotations
     for i in range(len(classes)):
         for j in range(len(classes)):
-            ax2.text(j, i, str(cm[i, j]),
-                    ha="center", va="center",
-                    color="black" if cm[i, j] < cm.max() / 2 else "white",
-                    fontsize=10, fontweight='bold')
+            txt_color = "black" if cm[i, j] < cm.max() / 2 else "white"
+            ax2.text(
+                j, i, str(cm[i, j]),
+                ha="center", va="center",
+                color=txt_color,
+                fontsize=10, fontweight='bold')
 
     ax2.set_xlabel('Predicted Label', fontsize=10)
     ax2.set_ylabel('True Label', fontsize=10)
@@ -356,10 +366,11 @@ def plot_training_summary(cv_scores: np.ndarray,
         acc = (y_pred[mask] == cls).mean()
         class_acc.append(acc)
 
-    bars = ax3.bar(classes, class_acc, alpha=0.7, color='coral',
-                   edgecolor='black')
-    ax3.axhline(TARGET_ACCURACY, color='green', linestyle='--', linewidth=2,
-               label=f'Target: {TARGET_ACCURACY:.2f}')
+    ax3.bar(classes, class_acc, alpha=0.7, color='coral',
+            edgecolor='black')
+    ax3.axhline(
+        TARGET_ACCURACY, color='green', linestyle='--', linewidth=2,
+        label=f'Target: {TARGET_ACCURACY:.2f}')
     ax3.set_xlabel('Class', fontsize=10)
     ax3.set_ylabel('Accuracy', fontsize=10)
     ax3.set_title('Per-Class Accuracy', fontsize=12, fontweight='bold')
@@ -371,10 +382,12 @@ def plot_training_summary(cv_scores: np.ndarray,
     ax3.grid(axis='y', alpha=0.3)
 
     for cls, acc in zip(classes, class_acc):
-        ax3.text(cls, acc + 0.02, f'{acc:.3f}',
-                ha='center', va='bottom', fontsize=8)
+        ax3.text(
+            cls, acc + 0.02, f'{acc:.3f}',
+            ha='center', va='bottom', fontsize=8)
 
-    plt.suptitle(f'Training Summary: {pipeline_name}',
-                fontsize=14, fontweight='bold', y=1.02)
+    plt.suptitle(
+        f'Training Summary: {pipeline_name}',
+        fontsize=14, fontweight='bold', y=1.02)
     plt.tight_layout()
     return _finalize_plot(fig, save_path, show)

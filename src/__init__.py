@@ -1,5 +1,5 @@
 """
-Total Perspective Vortex - EEG Brain-Computer Interface
+Total Perspective Vortex - EEG Brain-Computer Interface.
 
 A complete BCI system for motor imagery classification using EEG data
 from the Physionet EEGMMIDB dataset.

@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
 """
-mybci.py - Main entry point for EEG Brain-Computer Interface
+mybci.py - Main entry point for EEG Brain-Computer Interface.
 
-Usage:
+Usage
+-----
     python mybci.py <subject> <run> <mode> [options]
 
-Arguments:
+Arguments
+---------
     subject     Subject number (1-109)
     run         Run number (3-14, see below for task types)
     mode        'train' or 'predict'
 
-Run types:
+Run types
+---------
     3, 7, 11    - Motor execution (left fist vs right fist)
     4, 8, 12    - Motor imagery (left fist vs right fist)
     5, 9, 13    - Motor execution (both fists vs both feet)
     6, 10, 14   - Motor imagery (both fists vs both feet)
 
-Examples:
+Examples
+--------
     python mybci.py 4 14 train      # Train on subject 4, run 14
     python mybci.py 4 14 predict    # Predict on subject 4, run 14
     python mybci.py 1 6 train --pipeline csp_svm
@@ -45,7 +49,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
         description='EEG Brain-Computer Interface',
@@ -106,7 +110,7 @@ Examples:
     return parser.parse_args()
 
 
-def validate_args(args):
+def validate_args(args: argparse.Namespace) -> None:
     """Validate command line arguments."""
     # Validate subject number
     if args.subject < MIN_SUBJECT or args.subject > MAX_SUBJECT:
@@ -121,7 +125,7 @@ def validate_args(args):
         sys.exit(1)
 
 
-def print_header(args):
+def print_header(args: argparse.Namespace) -> None:
     """Print program header."""
     print("\n" + "=" * 60)
     print("    Total Perspective Vortex - EEG BCI System")
@@ -133,7 +137,7 @@ def print_header(args):
     print("=" * 60)
 
 
-def mode_train(args):
+def mode_train(args: argparse.Namespace) -> int:
     """Execute training mode."""
     verbose = not args.quiet
     plot = not args.no_plot
@@ -146,8 +150,9 @@ def mode_train(args):
         print(f"Data shape: {X.shape}")
         print(f"Labels: {len(y)} epochs")
 
-        results = compare_pipelines(X, y, cv=args.cv, verbose=verbose,
-                                   plot=plot, save_plots=save_plots)
+        results = compare_pipelines(
+            X, y, cv=args.cv, verbose=verbose,
+            plot=plot, save_plots=save_plots)
 
         # Find best and train with it
         valid_results = {k: v for k, v in results.items() if v is not None}
@@ -184,12 +189,13 @@ def mode_train(args):
     if scores.mean() >= TARGET_ACCURACY:
         print(f"\n*** TARGET ACCURACY ({TARGET_ACCURACY:.0%}) ACHIEVED! ***")
     else:
-        print(f"\n*** Target accuracy not reached (need {TARGET_ACCURACY - scores.mean():.4f} more) ***")
+        gap = TARGET_ACCURACY - scores.mean()
+        print(f"\n*** Target accuracy not reached (need {gap:.4f} more) ***")
 
     return 0
 
 
-def mode_predict(args):
+def mode_predict(args: argparse.Namespace) -> int:
     """Execute prediction mode."""
     verbose = not args.quiet
 
@@ -208,20 +214,21 @@ def mode_predict(args):
     print("PREDICTION COMPLETE")
     print("=" * 60)
     print(f"Accuracy: {results['accuracy']:.4f}")
-    print(f"Average prediction time: {results['avg_time']*1000:.2f} ms")
-    print(f"Max prediction time: {results['max_time']*1000:.2f} ms")
-    print(f"Time limit (2s): {'PASSED' if results['within_time_limit'] else 'FAILED'}")
+    print(f"Average prediction time: {results['avg_time'] * 1000:.2f} ms")
+    print(f"Max prediction time: {results['max_time'] * 1000:.2f} ms")
+    status = 'PASSED' if results['within_time_limit'] else 'FAILED'
+    print(f"Time limit (2s): {status}")
 
     if results['accuracy'] >= TARGET_ACCURACY:
         print(f"\n*** TARGET ACCURACY ({TARGET_ACCURACY:.0%}) ACHIEVED! ***")
     else:
-        print(f"\n*** Target accuracy not reached ***")
+        print("\n*** Target accuracy not reached ***")
 
     return 0
 
 
-def main():
-    """Main entry point."""
+def main() -> int:
+    """Execute main program logic."""
     args = parse_args()
     validate_args(args)
     print_header(args)
@@ -231,6 +238,7 @@ def main():
             return mode_train(args)
         elif args.mode == 'predict':
             return mode_predict(args)
+        return 0
     except KeyboardInterrupt:
         logger.info("Interrupted by user")
         print("\nInterrupted by user")

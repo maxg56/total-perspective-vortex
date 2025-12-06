@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 from preprocess import preprocess_subject
 from train import train_with_holdout
 
+
 def main():
     # Get subject and run from command line or use defaults
     subject = int(sys.argv[1]) if len(sys.argv) > 1 else 4
@@ -58,6 +59,7 @@ def main():
     print("  - plots/confusion_matrix_csp_lda.png")
     print("  - plots/training_summary_csp_lda.png")
     print("=" * 70)
+
 
 if __name__ == "__main__":
     main()

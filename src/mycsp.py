@@ -22,6 +22,7 @@ The eigenvectors corresponding to the largest and smallest eigenvalues
 are the most discriminative spatial filters.
 """
 
+from typing import Optional
 import numpy as np
 from scipy import linalg
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -54,8 +55,8 @@ class MyCSP(BaseEstimator, TransformerMixin):
         The eigenvalues associated with the spatial filters
     """
 
-    def __init__(self, n_components: int = 4, reg: float = None,
-                 log: bool = True, norm_trace: bool = True):
+    def __init__(self, n_components: int = 4, reg: Optional[float] = None,
+                 log: bool = True, norm_trace: bool = True) -> None:
         self.n_components = n_components
         self.reg = reg
         self.log = log
@@ -90,7 +91,7 @@ class MyCSP(BaseEstimator, TransformerMixin):
         if self.reg is not None:
             avg_cov += self.reg * np.trace(avg_cov) * np.eye(n_channels)
 
-        return avg_cov
+        return avg_cov  # type: ignore[no-any-return]
 
     def fit(self, X: np.ndarray, y: np.ndarray):
         """
@@ -171,9 +172,6 @@ class MyCSP(BaseEstimator, TransformerMixin):
         if not hasattr(self, 'W_'):
             raise RuntimeError("CSP not fitted. Call fit() first.")
 
-        n_epochs = X.shape[0]
-        n_components = self.W_.shape[1]
-
         # Apply spatial filters: X_filtered = W.T @ X
         # Shape: (n_epochs, n_components, n_times)
         # Vectorized spatial filtering using einsum
@@ -188,9 +186,9 @@ class MyCSP(BaseEstimator, TransformerMixin):
 
         if self.log:
             # Log-transform (common for CSP features)
-            return np.log(variances + EPSILON)
+            return np.log(variances + EPSILON)  # type: ignore[no-any-return]
         else:
-            return variances
+            return variances  # type: ignore[no-any-return]
 
     def fit_transform(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
         """
@@ -208,7 +206,7 @@ class MyCSP(BaseEstimator, TransformerMixin):
         X_csp : np.ndarray
             CSP features of shape (n_epochs, n_components)
         """
-        return self.fit(X, y).transform(X)
+        return self.fit(X, y).transform(X)  # type: ignore[no-any-return]
 
 
 class MyPCA(BaseEstimator, TransformerMixin):
@@ -223,10 +221,10 @@ class MyPCA(BaseEstimator, TransformerMixin):
         Number of principal components to keep
     """
 
-    def __init__(self, n_components: int = 10):
+    def __init__(self, n_components: int = 10) -> None:
         self.n_components = n_components
 
-    def fit(self, X: np.ndarray, y=None):
+    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> 'MyPCA':
         """
         Fit PCA to the data.
 
@@ -279,7 +277,7 @@ class MyPCA(BaseEstimator, TransformerMixin):
             Transformed data of shape (n_samples, n_components)
         """
         X_centered = X - self.mean_
-        return np.dot(X_centered, self.components_)
+        return np.dot(X_centered, self.components_)  # type: ignore[no-any-return]
 
 
 if __name__ == "__main__":

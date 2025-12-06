@@ -8,7 +8,9 @@ Handles:
 """
 
 import os
+from typing import List, Tuple, Optional, Dict
 import numpy as np
+from numpy.typing import NDArray
 import mne
 from mne.datasets import eegbci
 from mne.io import concatenate_raws, read_raw_edf
@@ -33,12 +35,12 @@ EVENT_ID_LEFT_RIGHT = {
 }
 
 
-def get_data_path():
+def get_data_path() -> str:
     """Get the path where MNE stores downloaded data."""
     return os.path.join(mne.get_config('MNE_DATA', default='~/mne_data'), 'MNE-eegbci-data')
 
 
-def load_raw_data(subject: int, runs: list) -> mne.io.Raw:
+def load_raw_data(subject: int, runs: List[int]) -> mne.io.Raw:
     """
     Load raw EEG data for a specific subject and runs from Physionet EEGMMIDB.
 
@@ -96,9 +98,9 @@ def filter_raw(raw: mne.io.Raw, l_freq: float = 7.0, h_freq: float = 30.0) -> mn
     return raw
 
 
-def extract_epochs(raw: mne.io.Raw, event_id: dict = None,
+def extract_epochs(raw: mne.io.Raw, event_id: Optional[Dict[str, int]] = None,
                    tmin: float = 0.0, tmax: float = 3.0,
-                   baseline: tuple = None) -> mne.Epochs:
+                   baseline: Optional[Tuple[float, float]] = None) -> mne.Epochs:
     """
     Extract epochs from raw EEG data around events.
 
@@ -164,9 +166,11 @@ def get_run_type(run: int) -> str:
         raise ValueError(f"Invalid run number: {run}")
 
 
-def preprocess_subject(subject: int, runs: list,
-                       l_freq: float = 7.0, h_freq: float = 30.0,
-                       tmin: float = 0.0, tmax: float = 3.0) -> tuple:
+def preprocess_subject(
+        subject: int, runs: List[int],
+        l_freq: float = 7.0, h_freq: float = 30.0,
+        tmin: float = 0.0, tmax: float = 3.0
+) -> Tuple[NDArray[np.float64], NDArray[np.int64], mne.Epochs]:
     """
     Complete preprocessing pipeline for a subject.
 
@@ -222,9 +226,11 @@ def preprocess_subject(subject: int, runs: list,
     return X, y, epochs
 
 
-def load_multiple_subjects(subjects: list, runs: list,
-                           l_freq: float = 7.0, h_freq: float = 30.0,
-                           tmin: float = 0.0, tmax: float = 3.0) -> tuple:
+def load_multiple_subjects(
+        subjects: List[int], runs: List[int],
+        l_freq: float = 7.0, h_freq: float = 30.0,
+        tmin: float = 0.0, tmax: float = 3.0
+) -> Tuple[NDArray[np.float64], NDArray[np.int64]]:
     """
     Load and preprocess data from multiple subjects.
 

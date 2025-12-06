@@ -7,7 +7,9 @@ Implements various feature extraction methods:
 - Log variance features
 """
 
+from typing import Dict, Tuple, Optional
 import numpy as np
+from numpy.typing import NDArray
 from scipy import signal
 from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -31,7 +33,8 @@ class PSDExtractor(BaseEstimator, TransformerMixin):
     """
 
     def __init__(self, fs: float = 160.0, nperseg: int = 256,
-                 noverlap: int = 128, freq_bands: dict = None):
+                 noverlap: int = 128,
+                 freq_bands: Optional[Dict[str, Tuple[float, float]]] = None) -> None:
         self.fs = fs
         self.nperseg = nperseg
         self.noverlap = noverlap
@@ -40,11 +43,12 @@ class PSDExtractor(BaseEstimator, TransformerMixin):
             'beta': (12, 30),
         }
 
-    def fit(self, X, y=None):
+    def fit(self, X: NDArray[np.float64],
+            y: Optional[NDArray[np.int64]] = None) -> 'PSDExtractor':
         """Fit method (nothing to fit for PSD extraction)."""
         return self
 
-    def transform(self, X):
+    def transform(self, X: NDArray[np.float64]) -> NDArray[np.float64]:
         """
         Extract PSD features from EEG epochs.
 
@@ -93,18 +97,20 @@ class BandPowerExtractor(BaseEstimator, TransformerMixin):
         Dictionary mapping band names to (low, high) frequency tuples
     """
 
-    def __init__(self, fs: float = 160.0, freq_bands: dict = None):
+    def __init__(self, fs: float = 160.0,
+                 freq_bands: Optional[Dict[str, Tuple[float, float]]] = None) -> None:
         self.fs = fs
         self.freq_bands = freq_bands or {
             'mu': (8, 12),
             'beta': (12, 30),
         }
 
-    def fit(self, X, y=None):
+    def fit(self, X: NDArray[np.float64],
+            y: Optional[NDArray[np.int64]] = None) -> 'BandPowerExtractor':
         """Fit method (nothing to fit)."""
         return self
 
-    def transform(self, X):
+    def transform(self, X: NDArray[np.float64]) -> NDArray[np.float64]:
         """
         Extract band power features.
 
@@ -158,14 +164,15 @@ class LogVarianceExtractor(BaseEstimator, TransformerMixin):
     None
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def fit(self, X, y=None):
+    def fit(self, X: NDArray[np.float64],
+            y: Optional[NDArray[np.int64]] = None) -> 'LogVarianceExtractor':
         """Fit method (nothing to fit)."""
         return self
 
-    def transform(self, X):
+    def transform(self, X: NDArray[np.float64]) -> NDArray[np.float64]:
         """
         Compute log-variance features.
 
@@ -200,14 +207,15 @@ class FlattenExtractor(BaseEstimator, TransformerMixin):
     Converts (n_epochs, n_channels, n_times) to (n_epochs, n_channels * n_times)
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def fit(self, X, y=None):
+    def fit(self, X: NDArray[np.float64],
+            y: Optional[NDArray[np.int64]] = None) -> 'FlattenExtractor':
         """Fit method (nothing to fit)."""
         return self
 
-    def transform(self, X):
+    def transform(self, X: NDArray[np.float64]) -> NDArray[np.float64]:
         """
         Flatten EEG epochs.
 

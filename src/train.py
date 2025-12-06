@@ -9,10 +9,13 @@ Handles:
 
 import os
 import logging
+from typing import Tuple, Dict, Optional, List, Any
 import joblib
 import numpy as np
+from numpy.typing import NDArray
 from sklearn.model_selection import cross_val_score, StratifiedKFold, train_test_split
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.pipeline import Pipeline
 
 from constants import RANDOM_STATE, TARGET_ACCURACY
 from preprocess import preprocess_subject, get_run_type
@@ -25,13 +28,13 @@ from visualization import (plot_cv_scores, plot_confusion_matrix,
 logger = logging.getLogger(__name__)
 
 
-def train_and_evaluate(X: np.ndarray, y: np.ndarray,
+def train_and_evaluate(X: NDArray[np.float64], y: NDArray[np.int64],
                        pipeline_name: str = 'csp_lda',
                        cv: int = 5,
                        verbose: bool = True,
                        plot: bool = True,
                        save_plots: bool = False,
-                       **pipeline_kwargs) -> tuple:
+                       **pipeline_kwargs: Any) -> Tuple[Pipeline, NDArray[np.float64]]:
     """
     Train a pipeline with cross-validation.
 
@@ -69,18 +72,22 @@ def train_and_evaluate(X: np.ndarray, y: np.ndarray,
     scores = cross_val_score(pipeline, X, y, cv=cv_splitter, scoring='accuracy')
 
     if verbose:
-        print(f"\n{'='*50}")
+        sep = '=' * 50
+        print(f"\n{sep}")
         print(f"Pipeline: {pipeline_name}")
-        print(f"{'='*50}")
+        print(f"{sep}")
         print(f"Cross-validation scores: {scores}")
-        print(f"Mean accuracy: {scores.mean():.4f} (+/- {scores.std() * 2:.4f})")
+        std_dev = scores.std() * 2
+        print(f"Mean accuracy: {scores.mean():.4f} (+/- {std_dev:.4f})")
         print(f"Min: {scores.min():.4f}, Max: {scores.max():.4f}")
 
         # Check if target achieved
         if scores.mean() >= TARGET_ACCURACY:
             print(f"Target accuracy ({TARGET_ACCURACY:.0%}) ACHIEVED")
         else:
-            print(f"Target accuracy ({TARGET_ACCURACY:.0%}) NOT achieved - need {TARGET_ACCURACY - scores.mean():.4f} more")
+            gap = TARGET_ACCURACY - scores.mean()
+            print(f"Target accuracy ({TARGET_ACCURACY:.0%}) NOT achieved "
+                  f"- need {gap:.4f} more")
 
     # Fit on all data for final model
     pipeline.fit(X, y)
@@ -93,14 +100,14 @@ def train_and_evaluate(X: np.ndarray, y: np.ndarray,
     return pipeline, scores
 
 
-def train_with_holdout(X: np.ndarray, y: np.ndarray,
+def train_with_holdout(X: NDArray[np.float64], y: NDArray[np.int64],
                        pipeline_name: str = 'csp_lda',
                        test_size: float = 0.2,
                        cv: int = 5,
                        verbose: bool = True,
                        plot: bool = True,
                        save_plots: bool = False,
-                       **pipeline_kwargs) -> tuple:
+                       **pipeline_kwargs: Any) -> Tuple[Pipeline, NDArray[np.float64], float]:
     """
     Train a pipeline with holdout test set.
 
@@ -140,7 +147,7 @@ def train_with_holdout(X: np.ndarray, y: np.ndarray,
     )
 
     if verbose:
-        print(f"\nData split:")
+        print("\nData split:")
         print(f"  Training: {len(y_train)} epochs")
         print(f"  Test: {len(y_test)} epochs")
 
@@ -152,9 +159,10 @@ def train_with_holdout(X: np.ndarray, y: np.ndarray,
     cv_scores = cross_val_score(pipeline, X_train, y_train, cv=cv_splitter, scoring='accuracy')
 
     if verbose:
-        print(f"\nCross-validation on training set:")
+        print("\nCross-validation on training set:")
         print(f"  Scores: {cv_scores}")
-        print(f"  Mean: {cv_scores.mean():.4f} (+/- {cv_scores.std() * 2:.4f})")
+        std_dev = cv_scores.std() * 2
+        print(f"  Mean: {cv_scores.mean():.4f} (+/- {std_dev:.4f})")
 
     # Fit on all training data
     pipeline.fit(X_train, y_train)
@@ -164,44 +172,51 @@ def train_with_holdout(X: np.ndarray, y: np.ndarray,
     test_accuracy = accuracy_score(y_test, y_pred)
 
     if verbose:
-        print(f"\nTest set evaluation:")
+        print("\nTest set evaluation:")
         print(f"  Accuracy: {test_accuracy:.4f}")
-        print(f"\nClassification report:")
+        print("\nClassification report:")
         print(classification_report(y_test, y_pred))
-        print(f"\nConfusion matrix:")
+        print("\nConfusion matrix:")
         print(confusion_matrix(y_test, y_pred))
 
         # Check if target achieved
         if test_accuracy >= TARGET_ACCURACY:
-            print(f"\nTarget accuracy ({TARGET_ACCURACY:.0%}) ACHIEVED on test set")
+            msg = f"\nTarget accuracy ({TARGET_ACCURACY:.0%}) ACHIEVED on test set"
+            print(msg)
         else:
-            print(f"\nTarget accuracy ({TARGET_ACCURACY:.0%}) NOT achieved on test set")
+            msg = f"\nTarget accuracy ({TARGET_ACCURACY:.0%}) NOT achieved on test set"
+            print(msg)
 
     # Plot results
     if plot:
         # Plot CV scores
-        cv_save_path = f"plots/cv_scores_{pipeline_name}_holdout.png" if save_plots else None
-        plot_cv_scores(cv_scores, title=f"CV Scores (Training Set): {pipeline_name}",
-                      save_path=cv_save_path)
+        cv_save = f"plots/cv_scores_{pipeline_name}_holdout.png" if save_plots else None
+        cv_title = f"CV Scores (Training Set): {pipeline_name}"
+        plot_cv_scores(cv_scores, title=cv_title, save_path=cv_save)
 
         # Plot confusion matrix
-        cm_save_path = f"plots/confusion_matrix_{pipeline_name}.png" if save_plots else None
-        plot_confusion_matrix(y_test, y_pred,
-                            title=f"Confusion Matrix (Test Set): {pipeline_name}",
-                            save_path=cm_save_path)
+        cm_save = f"plots/confusion_matrix_{pipeline_name}.png" if save_plots else None
+        cm_title = f"Confusion Matrix (Test Set): {pipeline_name}"
+        plot_confusion_matrix(
+            y_test, y_pred,
+            title=cm_title,
+            save_path=cm_save)
 
         # Plot comprehensive summary
-        summary_save_path = f"plots/training_summary_{pipeline_name}.png" if save_plots else None
-        plot_training_summary(cv_scores, y_test, y_pred,
-                            pipeline_name=pipeline_name,
-                            save_path=summary_save_path)
+        summary_save = f"plots/training_summary_{pipeline_name}.png" if save_plots else None
+        plot_training_summary(
+            cv_scores, y_test, y_pred,
+            pipeline_name=pipeline_name,
+            save_path=summary_save)
 
     return pipeline, cv_scores, test_accuracy
 
 
-def compare_pipelines(X: np.ndarray, y: np.ndarray,
-                      cv: int = 5, verbose: bool = True,
-                      plot: bool = True, save_plots: bool = False) -> dict:
+def compare_pipelines(
+        X: NDArray[np.float64], y: NDArray[np.int64],
+        cv: int = 5, verbose: bool = True,
+        plot: bool = True, save_plots: bool = False
+) -> Dict[str, Optional[Dict[str, Any]]]:
     """
     Compare all available pipelines.
 
@@ -225,7 +240,7 @@ def compare_pipelines(X: np.ndarray, y: np.ndarray,
     results : dict
         Dictionary mapping pipeline names to their scores
     """
-    results = {}
+    results: Dict[str, Optional[Dict[str, Any]]] = {}
 
     if verbose:
         print("\n" + "=" * 60)
@@ -258,22 +273,23 @@ def compare_pipelines(X: np.ndarray, y: np.ndarray,
     if valid_results:
         best = max(valid_results.items(), key=lambda x: x[1]['mean'])
         if verbose:
-            print(f"\nBest pipeline: {best[0]} with {best[1]['mean']:.4f} accuracy")
+            best_acc = best[1]['mean']
+            print(f"\nBest pipeline: {best[0]} with {best_acc:.4f} accuracy")
 
     # Plot results
     if plot and valid_results:
         # Bar plot comparison
-        comp_save_path = f"plots/pipeline_comparison.png" if save_plots else None
-        plot_pipeline_comparison(results, save_path=comp_save_path)
+        comp_save = "plots/pipeline_comparison.png" if save_plots else None
+        plot_pipeline_comparison(results, save_path=comp_save)
 
         # Detailed box plot
-        detail_save_path = f"plots/pipeline_comparison_detailed.png" if save_plots else None
-        plot_cv_detailed(results, save_path=detail_save_path)
+        detail_save = "plots/pipeline_comparison_detailed.png" if save_plots else None
+        plot_cv_detailed(results, save_path=detail_save)
 
     return results
 
 
-def save_model(pipeline, path: str, metadata: dict = None):
+def save_model(pipeline: Pipeline, path: str, metadata: Optional[Dict[str, Any]] = None) -> None:
     """
     Save trained model to disk.
 
@@ -302,7 +318,7 @@ def save_model(pipeline, path: str, metadata: dict = None):
     print(f"Model saved to: {path}")
 
 
-def load_model(path: str) -> tuple:
+def load_model(path: str) -> Tuple[Pipeline, Dict[str, Any]]:
     """
     Load trained model from disk.
 
@@ -324,13 +340,13 @@ def load_model(path: str) -> tuple:
     return model_data['pipeline'], model_data['metadata']
 
 
-def train_subject(subject: int, runs: list,
+def train_subject(subject: int, runs: List[int],
                   pipeline_name: str = 'csp_lda',
                   model_dir: str = 'models',
                   cv: int = 5,
                   plot: bool = True,
                   save_plots: bool = False,
-                  **pipeline_kwargs) -> tuple:
+                  **pipeline_kwargs: Any) -> Tuple[Pipeline, NDArray[np.float64]]:
     """
     Complete training pipeline for a subject.
 
@@ -360,11 +376,12 @@ def train_subject(subject: int, runs: list,
     scores : np.ndarray
         Cross-validation scores
     """
-    print(f"\n{'='*60}")
-    print(f"Training BCI model")
+    sep = '=' * 60
+    print(f"\n{sep}")
+    print("Training BCI model")
     print(f"Subject: {subject}, Runs: {runs}")
     print(f"Pipeline: {pipeline_name}")
-    print(f"{'='*60}")
+    print(f"{sep}")
 
     # Preprocess data
     print("\nLoading and preprocessing data...")
@@ -373,7 +390,8 @@ def train_subject(subject: int, runs: list,
     print(f"Data shape: {X.shape}")
     print(f"Labels: {np.unique(y)}")
     unique, counts = np.unique(y, return_counts=True)
-    print(f"Class distribution: {dict(zip(unique, counts))}")
+    class_dist = dict(zip(unique, counts))
+    print(f"Class distribution: {class_dist}")
 
     # Train and evaluate
     pipeline, scores = train_and_evaluate(

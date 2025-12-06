@@ -286,7 +286,6 @@ class TestSklearnCompatibility:
     def test_psd_sklearn_interface(self, synthetic_eeg_data):
         """Test PSDExtractor is sklearn compatible."""
         from features import PSDExtractor
-        from sklearn.utils.estimator_checks import check_estimator
 
         # Basic interface check - has fit, transform, fit_transform
         extractor = PSDExtractor()

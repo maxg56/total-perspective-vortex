@@ -114,7 +114,6 @@ class TestTrainWithHoldout:
     def test_stratified_split(self, small_synthetic_data):
         """Test that train/test split is stratified."""
         from train import train_with_holdout
-        from sklearn.model_selection import train_test_split
 
         X, y = small_synthetic_data
         # Just verify no error occurs with stratification

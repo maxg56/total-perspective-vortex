@@ -142,7 +142,7 @@ class TestMyCSPTransform:
 
         csp_log = MyCSP(n_components=4, log=True)
         csp_log.fit(X, y)
-        X_log = csp_log.transform(X)
+        csp_log.transform(X)
 
         csp_no_log = MyCSP(n_components=4, log=False)
         csp_no_log.fit(X, y)

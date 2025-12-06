@@ -7,6 +7,7 @@ Builds sklearn pipelines combining:
 - Classification (LDA, SVM, etc.)
 """
 
+from typing import Optional
 from sklearn.pipeline import Pipeline
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.svm import SVC
@@ -17,7 +18,7 @@ from mycsp import MyCSP, MyPCA
 from features import PSDExtractor, BandPowerExtractor, FlattenExtractor
 
 
-def build_csp_lda_pipeline(n_components: int = 6, reg: float = None) -> Pipeline:
+def build_csp_lda_pipeline(n_components: int = 6, reg: Optional[float] = None) -> Pipeline:
     """
     Build a CSP + LDA pipeline (recommended for motor imagery).
 
@@ -44,7 +45,7 @@ def build_csp_lda_pipeline(n_components: int = 6, reg: float = None) -> Pipeline
     return pipeline
 
 
-def build_csp_svm_pipeline(n_components: int = 6, reg: float = None,
+def build_csp_svm_pipeline(n_components: int = 6, reg: Optional[float] = None,
                            C: float = 1.0, kernel: str = 'rbf') -> Pipeline:
     """
     Build a CSP + SVM pipeline.
@@ -72,7 +73,7 @@ def build_csp_svm_pipeline(n_components: int = 6, reg: float = None,
     return pipeline
 
 
-def build_csp_lr_pipeline(n_components: int = 6, reg: float = None,
+def build_csp_lr_pipeline(n_components: int = 6, reg: Optional[float] = None,
                           C: float = 1.0) -> Pipeline:
     """
     Build a CSP + Logistic Regression pipeline.
@@ -200,7 +201,8 @@ def get_pipeline(pipeline_name: str = 'csp_lda', **kwargs) -> Pipeline:
         raise ValueError(f"Unknown pipeline: {pipeline_name}. "
                          f"Available: {list(pipelines.keys())}")
 
-    return pipelines[pipeline_name](**kwargs)
+    builder = pipelines[pipeline_name]
+    return builder(**kwargs)  # type: ignore[operator]
 
 
 def list_pipelines() -> list:

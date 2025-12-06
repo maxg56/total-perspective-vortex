@@ -120,7 +120,7 @@ class TestPredictBatch:
         start = time.time()
         for epoch in X[:5]:
             predict_single_epoch(pipeline, epoch)
-        sequential_time_partial = time.time() - start
+        time.time() - start
 
         # Batch should be efficient (just check it completes)
         assert batch_time > 0
@@ -230,8 +230,8 @@ class TestSimulateRealtimePrediction:
         pipeline, X, y = trained_csp_pipeline
         result = simulate_realtime_prediction(pipeline, X[:5], y[:5], max_time=2.0, verbose=False)
 
-        # Should complete within time limit (use == True for numpy bool compatibility)
-        assert result['within_time_limit'] == True
+        # Should complete within time limit (use is True for numpy bool compatibility)
+        assert result['within_time_limit'] is True
 
 
 class TestPredictFromFile:

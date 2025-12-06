@@ -10,8 +10,11 @@ Handles:
 import os
 import time
 import logging
+from typing import Tuple, Dict, List, Optional, Any
 import numpy as np
+from numpy.typing import NDArray
 from sklearn.metrics import accuracy_score
+from sklearn.pipeline import Pipeline
 
 from constants import MAX_PREDICTION_TIME
 from preprocess import preprocess_subject
@@ -21,7 +24,7 @@ from train import load_model
 logger = logging.getLogger(__name__)
 
 
-def predict_single_epoch(pipeline, epoch: np.ndarray) -> tuple:
+def predict_single_epoch(pipeline: Pipeline, epoch: NDArray[np.float64]) -> Tuple[int, float]:
     """
     Predict class for a single EEG epoch.
 
@@ -50,7 +53,7 @@ def predict_single_epoch(pipeline, epoch: np.ndarray) -> tuple:
     return prediction[0], prediction_time
 
 
-def predict_batch(pipeline, X: np.ndarray) -> tuple:
+def predict_batch(pipeline: Pipeline, X: NDArray[np.float64]) -> Tuple[NDArray[np.int64], float]:
     """
     Predict classes for a batch of epochs.
 
@@ -75,10 +78,11 @@ def predict_batch(pipeline, X: np.ndarray) -> tuple:
     return predictions, total_time
 
 
-def simulate_realtime_prediction(pipeline, X: np.ndarray, y: np.ndarray,
-                                  delay: float = 0.0,
-                                  max_time: float = MAX_PREDICTION_TIME,
-                                  verbose: bool = True) -> dict:
+def simulate_realtime_prediction(
+        pipeline: Pipeline, X: NDArray[np.float64], y: NDArray[np.int64],
+        delay: float = 0.0,
+        max_time: float = MAX_PREDICTION_TIME,
+        verbose: bool = True) -> Dict[str, Any]:
     """
     Simulate real-time prediction of EEG epochs.
 
@@ -116,11 +120,12 @@ def simulate_realtime_prediction(pipeline, X: np.ndarray, y: np.ndarray,
     correct = np.zeros(n_epochs, dtype=bool)
 
     if verbose:
-        print(f"\n{'='*60}")
+        sep = '=' * 60
+        print(f"\n{sep}")
         print("Real-time prediction simulation")
-        print(f"{'='*60}")
+        print(f"{sep}")
         print(f"Processing {n_epochs} epochs (max {max_time}s per epoch)")
-        print(f"{'='*60}\n")
+        print(f"{sep}\n")
 
     for i in range(n_epochs):
         # Predict single epoch
@@ -142,17 +147,20 @@ def simulate_realtime_prediction(pipeline, X: np.ndarray, y: np.ndarray,
     # Calculate results
     accuracy = accuracy_score(y, predictions)
     avg_time = np.mean(times)
-    max_pred_time = np.max(times)
+    max_pred_time: float = np.max(times)
     within_limit = max_pred_time < max_time
 
     if verbose:
-        print(f"\n{'='*60}")
+        sep = '=' * 60
+        print(f"\n{sep}")
         print("Summary")
-        print(f"{'='*60}")
-        print(f"Accuracy: {accuracy:.4f} ({int(accuracy * n_epochs)}/{n_epochs})")
-        print(f"Average prediction time: {avg_time*1000:.2f} ms")
-        print(f"Max prediction time: {max_pred_time*1000:.2f} ms")
-        print(f"Time limit ({max_time}s): {'PASSED' if within_limit else 'FAILED'}")
+        print(f"{sep}")
+        correct_count = int(accuracy * n_epochs)
+        print(f"Accuracy: {accuracy:.4f} ({correct_count}/{n_epochs})")
+        print(f"Average prediction time: {avg_time * 1000:.2f} ms")
+        print(f"Max prediction time: {max_pred_time * 1000:.2f} ms")
+        status = 'PASSED' if within_limit else 'FAILED'
+        print(f"Time limit ({max_time}s): {status}")
 
     return {
         'predictions': predictions,
@@ -165,11 +173,11 @@ def simulate_realtime_prediction(pipeline, X: np.ndarray, y: np.ndarray,
     }
 
 
-def run_prediction(subject: int, runs: list,
-                   model_path: str = None,
+def run_prediction(subject: int, runs: List[int],
+                   model_path: Optional[str] = None,
                    model_dir: str = 'models',
                    pipeline_name: str = 'csp_lda',
-                   verbose: bool = True) -> dict:
+                   verbose: bool = True) -> Dict[str, Any]:
     """
     Run prediction on a subject's data.
 
@@ -201,11 +209,12 @@ def run_prediction(subject: int, runs: list,
         )
 
     if verbose:
-        print(f"\n{'='*60}")
+        sep = '=' * 60
+        print(f"\n{sep}")
         print("BCI Prediction")
         print(f"Subject: {subject}, Runs: {runs}")
         print(f"Model: {model_path}")
-        print(f"{'='*60}")
+        print(f"{sep}")
 
     # Load model
     if verbose:
@@ -217,7 +226,7 @@ def run_prediction(subject: int, runs: list,
     pipeline, metadata = load_model(model_path)
 
     if verbose:
-        print(f"Model loaded successfully")
+        print("Model loaded successfully")
         print(f"Training subject: {metadata.get('subject', 'unknown')}")
         print(f"Training runs: {metadata.get('runs', 'unknown')}")
         print(f"CV accuracy: {metadata.get('cv_mean', 'unknown'):.4f}")
@@ -239,7 +248,7 @@ def run_prediction(subject: int, runs: list,
 
 
 def predict_from_file(model_path: str, data_path: str,
-                      verbose: bool = True) -> dict:
+                      verbose: bool = True) -> Dict[str, Any]:
     """
     Predict using saved model on data from file.
 
