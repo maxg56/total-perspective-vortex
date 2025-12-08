@@ -35,11 +35,11 @@ import logging
 # Add src directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from constants import MIN_SUBJECT, MAX_SUBJECT, VALID_RUNS, TARGET_ACCURACY
-from train import train_subject, compare_pipelines
-from predict import run_prediction
-from preprocess import preprocess_subject, get_run_type
-from pipeline import list_pipelines
+from constants import MIN_SUBJECT, MAX_SUBJECT, VALID_RUNS, TARGET_ACCURACY  # noqa: E402
+from train import train_subject, compare_pipelines  # noqa: E402
+from predict import run_prediction  # noqa: E402
+from preprocess import preprocess_subject, get_run_type  # noqa: E402
+from pipeline import list_pipelines  # noqa: E402
 
 # Configure logging
 logging.basicConfig(
