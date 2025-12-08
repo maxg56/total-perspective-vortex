@@ -91,7 +91,7 @@ class MyCSP(BaseEstimator, TransformerMixin):
         if self.reg is not None:
             avg_cov += self.reg * np.trace(avg_cov) * np.eye(n_channels)
 
-        return avg_cov  # type: ignore[no-any-return]
+        return avg_cov
 
     def fit(self, X: np.ndarray, y: np.ndarray):
         """
@@ -186,9 +186,9 @@ class MyCSP(BaseEstimator, TransformerMixin):
 
         if self.log:
             # Log-transform (common for CSP features)
-            return np.log(variances + EPSILON)  # type: ignore[no-any-return]
+            return np.log(variances + EPSILON)
         else:
-            return variances  # type: ignore[no-any-return]
+            return variances
 
     def fit_transform(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
         """
@@ -206,7 +206,7 @@ class MyCSP(BaseEstimator, TransformerMixin):
         X_csp : np.ndarray
             CSP features of shape (n_epochs, n_components)
         """
-        return self.fit(X, y).transform(X)  # type: ignore[no-any-return]
+        return self.fit(X, y).transform(X)
 
 
 class MyPCA(BaseEstimator, TransformerMixin):
@@ -277,7 +277,7 @@ class MyPCA(BaseEstimator, TransformerMixin):
             Transformed data of shape (n_samples, n_components)
         """
         X_centered = X - self.mean_
-        return np.dot(X_centered, self.components_)  # type: ignore[no-any-return]
+        return np.dot(X_centered, self.components_)
 
 
 if __name__ == "__main__":
