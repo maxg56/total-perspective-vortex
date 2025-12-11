@@ -9,7 +9,12 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 from typing import List, Optional
 
-from constants import TARGET_ACCURACY
+from constants import (
+    TARGET_ACCURACY,
+    PLOT_FIGSIZE_CONFUSION,
+    PLOT_FONTSIZE_LABEL,
+    PLOT_FONTSIZE_TITLE,
+)
 from visualization._base import _finalize_plot
 
 
@@ -44,14 +49,14 @@ def plot_confusion_matrix(y_true: np.ndarray,
     """
     cm = confusion_matrix(y_true, y_pred)
 
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=PLOT_FIGSIZE_CONFUSION)
 
     # Use matplotlib imshow for heatmap
     im = ax.imshow(cm, cmap='Blues', aspect='auto')
 
     # Add colorbar
     cbar = plt.colorbar(im, ax=ax)
-    cbar.set_label('Count', fontsize=12)
+    cbar.set_label('Count', fontsize=PLOT_FONTSIZE_LABEL)
 
     # Set ticks and labels
     classes = class_names or np.unique(y_true)
@@ -67,11 +72,11 @@ def plot_confusion_matrix(y_true: np.ndarray,
             ax.text(
                 j, i, str(cm[i, j]),
                 ha="center", va="center", color=txt_color,
-                fontsize=14, fontweight='bold')
+                fontsize=PLOT_FONTSIZE_TITLE, fontweight='bold')
 
-    ax.set_xlabel('Predicted Label', fontsize=12)
-    ax.set_ylabel('True Label', fontsize=12)
-    ax.set_title(title, fontsize=14, fontweight='bold')
+    ax.set_xlabel('Predicted Label', fontsize=PLOT_FONTSIZE_LABEL)
+    ax.set_ylabel('True Label', fontsize=PLOT_FONTSIZE_LABEL)
+    ax.set_title(title, fontsize=PLOT_FONTSIZE_TITLE, fontweight='bold')
 
     plt.tight_layout()
     return _finalize_plot(fig, save_path, show)
@@ -122,11 +127,11 @@ def plot_training_summary(
         mean_score, color='red', linestyle='--', linewidth=2,
         label=f'Mean: {mean_score:.4f}')
     ax1.axhline(
-        0.60, color='green', linestyle='--', linewidth=2,
-        label='Target: 0.60')
+        TARGET_ACCURACY, color='green', linestyle='--', linewidth=2,
+        label=f'Target: {TARGET_ACCURACY:.2f}')
     ax1.set_xlabel('Fold', fontsize=10)
     ax1.set_ylabel('Accuracy', fontsize=10)
-    ax1.set_title('Cross-Validation Scores', fontsize=12, fontweight='bold')
+    ax1.set_title('Cross-Validation Scores', fontsize=PLOT_FONTSIZE_LABEL, fontweight='bold')
     ax1.set_ylim([0, 1])
     ax1.set_xticks(folds)
     ax1.legend(fontsize=8)
@@ -165,7 +170,7 @@ def plot_training_summary(
 
     ax2.set_xlabel('Predicted Label', fontsize=10)
     ax2.set_ylabel('True Label', fontsize=10)
-    ax2.set_title('Confusion Matrix', fontsize=12, fontweight='bold')
+    ax2.set_title('Confusion Matrix', fontsize=PLOT_FONTSIZE_LABEL, fontweight='bold')
 
     # Subplot 3: Accuracy per class
     ax3 = plt.subplot(1, 3, 3)
@@ -183,7 +188,7 @@ def plot_training_summary(
         label=f'Target: {TARGET_ACCURACY:.2f}')
     ax3.set_xlabel('Class', fontsize=10)
     ax3.set_ylabel('Accuracy', fontsize=10)
-    ax3.set_title('Per-Class Accuracy', fontsize=12, fontweight='bold')
+    ax3.set_title('Per-Class Accuracy', fontsize=PLOT_FONTSIZE_LABEL, fontweight='bold')
     ax3.set_ylim([0, 1])
     ax3.set_xticks(classes)
     if class_names:
@@ -198,6 +203,6 @@ def plot_training_summary(
 
     plt.suptitle(
         f'Training Summary: {pipeline_name}',
-        fontsize=14, fontweight='bold', y=1.02)
+        fontsize=PLOT_FONTSIZE_TITLE, fontweight='bold', y=1.02)
     plt.tight_layout()
     return _finalize_plot(fig, save_path, show)

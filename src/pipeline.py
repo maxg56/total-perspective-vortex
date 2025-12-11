@@ -14,6 +14,7 @@ from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
+from constants import EEG_SAMPLING_RATE, DEFAULT_N_COMPONENTS_PCA_PIPELINE
 from mycsp import MyCSP, MyPCA
 from features import PSDExtractor, BandPowerExtractor, FlattenExtractor
 
@@ -99,7 +100,7 @@ def build_csp_lr_pipeline(n_components: int = 6, reg: Optional[float] = None,
     return pipeline
 
 
-def build_psd_lda_pipeline(fs: float = 160.0) -> Pipeline:
+def build_psd_lda_pipeline(fs: float = EEG_SAMPLING_RATE) -> Pipeline:
     """
     Build a PSD + LDA pipeline.
 
@@ -122,7 +123,7 @@ def build_psd_lda_pipeline(fs: float = 160.0) -> Pipeline:
     return pipeline
 
 
-def build_bandpower_lda_pipeline(fs: float = 160.0) -> Pipeline:
+def build_bandpower_lda_pipeline(fs: float = EEG_SAMPLING_RATE) -> Pipeline:
     """
     Build a Band Power + LDA pipeline.
 
@@ -143,7 +144,7 @@ def build_bandpower_lda_pipeline(fs: float = 160.0) -> Pipeline:
     return pipeline
 
 
-def build_flat_pca_lda_pipeline(n_components: int = 50) -> Pipeline:
+def build_flat_pca_lda_pipeline(n_components: int = DEFAULT_N_COMPONENTS_PCA_PIPELINE) -> Pipeline:
     """
     Build a Flatten + PCA + LDA pipeline.
 

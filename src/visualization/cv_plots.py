@@ -8,7 +8,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import Dict, Optional
 
-from constants import TARGET_ACCURACY
+from constants import (
+    TARGET_ACCURACY,
+    PLOT_FIGSIZE_CV,
+    PLOT_FIGSIZE_DETAILED,
+    PLOT_FONTSIZE_LABEL,
+    PLOT_FONTSIZE_TITLE,
+    PLOT_FONTSIZE_LEGEND,
+    PLOT_XTICK_ROTATION,
+)
 from visualization._base import _finalize_plot
 
 
@@ -35,7 +43,7 @@ def plot_cv_scores(scores: np.ndarray,
     fig : matplotlib.figure.Figure
         The generated figure
     """
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=PLOT_FIGSIZE_CV)
 
     # Bar plot for each fold
     folds = np.arange(1, len(scores) + 1)
@@ -51,12 +59,12 @@ def plot_cv_scores(scores: np.ndarray,
                label=f'Target: {TARGET_ACCURACY:.2f}')
 
     # Styling
-    ax.set_xlabel('Fold', fontsize=12)
-    ax.set_ylabel('Accuracy', fontsize=12)
-    ax.set_title(title, fontsize=14, fontweight='bold')
+    ax.set_xlabel('Fold', fontsize=PLOT_FONTSIZE_LABEL)
+    ax.set_ylabel('Accuracy', fontsize=PLOT_FONTSIZE_LABEL)
+    ax.set_title(title, fontsize=PLOT_FONTSIZE_TITLE, fontweight='bold')
     ax.set_ylim([0, 1])
     ax.set_xticks(folds)
-    ax.legend(fontsize=10)
+    ax.legend(fontsize=PLOT_FONTSIZE_LEGEND)
     ax.grid(axis='y', alpha=0.3)
 
     # Add value labels on bars
@@ -98,7 +106,7 @@ def plot_cv_detailed(results: Dict[str, Dict],
         print("No valid results to plot")
         return None
 
-    fig, ax = plt.subplots(figsize=(14, 7))
+    fig, ax = plt.subplots(figsize=PLOT_FIGSIZE_DETAILED)
 
     # Create box plots
     data = [v['scores'] for v in valid_results.values()]
@@ -117,12 +125,12 @@ def plot_cv_detailed(results: Dict[str, Dict],
                label=f'Target: {TARGET_ACCURACY:.2f}')
 
     # Styling
-    ax.set_xlabel('Pipeline', fontsize=12)
-    ax.set_ylabel('Accuracy', fontsize=12)
-    ax.set_title(title, fontsize=14, fontweight='bold')
-    ax.set_xticklabels(names, rotation=45, ha='right')
+    ax.set_xlabel('Pipeline', fontsize=PLOT_FONTSIZE_LABEL)
+    ax.set_ylabel('Accuracy', fontsize=PLOT_FONTSIZE_LABEL)
+    ax.set_title(title, fontsize=PLOT_FONTSIZE_TITLE, fontweight='bold')
+    ax.set_xticklabels(names, rotation=PLOT_XTICK_ROTATION, ha='right')
     ax.set_ylim([0, 1])
-    ax.legend(fontsize=10)
+    ax.legend(fontsize=PLOT_FONTSIZE_LEGEND)
     ax.grid(axis='y', alpha=0.3)
 
     plt.tight_layout()

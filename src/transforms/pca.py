@@ -9,6 +9,8 @@ import numpy as np
 from scipy import linalg
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from constants import DEFAULT_N_COMPONENTS_PCA
+
 
 class MyPCA(BaseEstimator, TransformerMixin):
     """
@@ -33,7 +35,7 @@ class MyPCA(BaseEstimator, TransformerMixin):
         Percentage of variance explained by each component
     """
 
-    def __init__(self, n_components: int = 10) -> None:
+    def __init__(self, n_components: int = DEFAULT_N_COMPONENTS_PCA) -> None:
         self.n_components = n_components
 
     def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> 'MyPCA':

@@ -13,7 +13,18 @@ from numpy.typing import NDArray
 from scipy import signal
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from constants import EPSILON
+from constants import (
+    EPSILON,
+    EEG_SAMPLING_RATE,
+    WELCH_NPERSEG,
+    WELCH_NOVERLAP,
+    MU_BAND_LOW,
+    MU_BAND_HIGH,
+    BETA_BAND_LOW,
+    BETA_BAND_HIGH,
+    TEST_N_CHANNELS,
+    TEST_N_TIMES,
+)
 
 
 class PSDExtractor(BaseEstimator, TransformerMixin):
@@ -32,15 +43,15 @@ class PSDExtractor(BaseEstimator, TransformerMixin):
         Dictionary mapping band names to (low, high) frequency tuples
     """
 
-    def __init__(self, fs: float = 160.0, nperseg: int = 256,
-                 noverlap: int = 128,
+    def __init__(self, fs: float = EEG_SAMPLING_RATE, nperseg: int = WELCH_NPERSEG,
+                 noverlap: int = WELCH_NOVERLAP,
                  freq_bands: Optional[Dict[str, Tuple[float, float]]] = None) -> None:
         self.fs = fs
         self.nperseg = nperseg
         self.noverlap = noverlap
         self.freq_bands = freq_bands or {
-            'mu': (8, 12),
-            'beta': (12, 30),
+            'mu': (MU_BAND_LOW, MU_BAND_HIGH),
+            'beta': (BETA_BAND_LOW, BETA_BAND_HIGH),
         }
 
     def fit(self, X: NDArray[np.float64],
@@ -97,12 +108,12 @@ class BandPowerExtractor(BaseEstimator, TransformerMixin):
         Dictionary mapping band names to (low, high) frequency tuples
     """
 
-    def __init__(self, fs: float = 160.0,
+    def __init__(self, fs: float = EEG_SAMPLING_RATE,
                  freq_bands: Optional[Dict[str, Tuple[float, float]]] = None) -> None:
         self.fs = fs
         self.freq_bands = freq_bands or {
-            'mu': (8, 12),
-            'beta': (12, 30),
+            'mu': (MU_BAND_LOW, MU_BAND_HIGH),
+            'beta': (BETA_BAND_LOW, BETA_BAND_HIGH),
         }
 
     def fit(self, X: NDArray[np.float64],
@@ -238,16 +249,16 @@ if __name__ == "__main__":
     print("Testing feature extractors...")
 
     # Create dummy EEG data
-    n_epochs, n_channels, n_times = 10, 64, 480
+    n_epochs, n_channels, n_times = 10, TEST_N_CHANNELS, TEST_N_TIMES
     X = np.random.randn(n_epochs, n_channels, n_times)
 
     # Test PSD extractor
-    psd = PSDExtractor(fs=160.0)
+    psd = PSDExtractor(fs=EEG_SAMPLING_RATE)
     X_psd = psd.fit_transform(X)
     print(f"PSD features shape: {X_psd.shape}")
 
     # Test band power extractor
-    bp = BandPowerExtractor(fs=160.0)
+    bp = BandPowerExtractor(fs=EEG_SAMPLING_RATE)
     X_bp = bp.fit_transform(X)
     print(f"Band power features shape: {X_bp.shape}")
 
