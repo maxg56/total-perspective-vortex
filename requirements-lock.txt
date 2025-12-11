@@ -45,7 +45,7 @@ threadpoolctl==3.2.0
 # MNE dependencies
 pooch==1.8.0
 decorator==5.1.1
-tqdm==4.66.1
+tqdm==4.66.3
 platformdirs==4.1.0
 
 # flake8/mypy dependencies
