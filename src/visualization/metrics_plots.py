@@ -12,8 +12,12 @@ from typing import List, Optional
 from constants import (
     TARGET_ACCURACY,
     PLOT_FIGSIZE_CONFUSION,
+    PLOT_FIGSIZE_SUMMARY,
     PLOT_FONTSIZE_LABEL,
     PLOT_FONTSIZE_TITLE,
+    PLOT_FONTSIZE_LEGEND,
+    PLOT_FONTSIZE_SMALL,
+    PLOT_TEXT_OFFSET,
 )
 from visualization._base import _finalize_plot
 
@@ -115,7 +119,7 @@ def plot_training_summary(
     fig : matplotlib.figure.Figure
         The generated figure
     """
-    fig = plt.figure(figsize=(15, 5))
+    fig = plt.figure(figsize=PLOT_FIGSIZE_SUMMARY)
 
     # Subplot 1: CV Scores
     ax1 = plt.subplot(1, 3, 1)
@@ -129,18 +133,18 @@ def plot_training_summary(
     ax1.axhline(
         TARGET_ACCURACY, color='green', linestyle='--', linewidth=2,
         label=f'Target: {TARGET_ACCURACY:.2f}')
-    ax1.set_xlabel('Fold', fontsize=10)
-    ax1.set_ylabel('Accuracy', fontsize=10)
+    ax1.set_xlabel('Fold', fontsize=PLOT_FONTSIZE_LEGEND)
+    ax1.set_ylabel('Accuracy', fontsize=PLOT_FONTSIZE_LEGEND)
     ax1.set_title('Cross-Validation Scores', fontsize=PLOT_FONTSIZE_LABEL, fontweight='bold')
     ax1.set_ylim([0, 1])
     ax1.set_xticks(folds)
-    ax1.legend(fontsize=8)
+    ax1.legend(fontsize=PLOT_FONTSIZE_SMALL)
     ax1.grid(axis='y', alpha=0.3)
 
     for fold, score in zip(folds, cv_scores):
         ax1.text(
-            fold, score + 0.02, f'{score:.3f}',
-            ha='center', va='bottom', fontsize=8)
+            fold, score + PLOT_TEXT_OFFSET, f'{score:.3f}',
+            ha='center', va='bottom', fontsize=PLOT_FONTSIZE_SMALL)
 
     # Subplot 2: Confusion Matrix
     ax2 = plt.subplot(1, 3, 2)
@@ -149,7 +153,7 @@ def plot_training_summary(
     # Use matplotlib imshow for heatmap
     im = ax2.imshow(cm, cmap='Blues', aspect='auto')
     cbar = plt.colorbar(im, ax=ax2)
-    cbar.set_label('Count', fontsize=10)
+    cbar.set_label('Count', fontsize=PLOT_FONTSIZE_LEGEND)
 
     # Set ticks and labels
     classes = class_names or np.unique(y_true)
@@ -166,10 +170,10 @@ def plot_training_summary(
                 j, i, str(cm[i, j]),
                 ha="center", va="center",
                 color=txt_color,
-                fontsize=10, fontweight='bold')
+                fontsize=PLOT_FONTSIZE_LEGEND, fontweight='bold')
 
-    ax2.set_xlabel('Predicted Label', fontsize=10)
-    ax2.set_ylabel('True Label', fontsize=10)
+    ax2.set_xlabel('Predicted Label', fontsize=PLOT_FONTSIZE_LEGEND)
+    ax2.set_ylabel('True Label', fontsize=PLOT_FONTSIZE_LEGEND)
     ax2.set_title('Confusion Matrix', fontsize=PLOT_FONTSIZE_LABEL, fontweight='bold')
 
     # Subplot 3: Accuracy per class
@@ -186,20 +190,20 @@ def plot_training_summary(
     ax3.axhline(
         TARGET_ACCURACY, color='green', linestyle='--', linewidth=2,
         label=f'Target: {TARGET_ACCURACY:.2f}')
-    ax3.set_xlabel('Class', fontsize=10)
-    ax3.set_ylabel('Accuracy', fontsize=10)
+    ax3.set_xlabel('Class', fontsize=PLOT_FONTSIZE_LEGEND)
+    ax3.set_ylabel('Accuracy', fontsize=PLOT_FONTSIZE_LEGEND)
     ax3.set_title('Per-Class Accuracy', fontsize=PLOT_FONTSIZE_LABEL, fontweight='bold')
     ax3.set_ylim([0, 1])
     ax3.set_xticks(classes)
     if class_names:
         ax3.set_xticklabels(class_names)
-    ax3.legend(fontsize=8)
+    ax3.legend(fontsize=PLOT_FONTSIZE_SMALL)
     ax3.grid(axis='y', alpha=0.3)
 
     for cls, acc in zip(classes, class_acc):
         ax3.text(
-            cls, acc + 0.02, f'{acc:.3f}',
-            ha='center', va='bottom', fontsize=8)
+            cls, acc + PLOT_TEXT_OFFSET, f'{acc:.3f}',
+            ha='center', va='bottom', fontsize=PLOT_FONTSIZE_SMALL)
 
     plt.suptitle(
         f'Training Summary: {pipeline_name}',

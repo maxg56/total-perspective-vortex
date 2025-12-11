@@ -2,7 +2,13 @@
 Unit tests for feature extraction pipelines.
 """
 
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
 from sklearn.pipeline import Pipeline
+from constants import EEG_SAMPLING_RATE, DEFAULT_N_COMPONENTS_PCA
 
 
 class TestBuildPsdLdaPipeline:
@@ -120,7 +126,7 @@ class TestBuildFlatPcaLdaPipeline:
 
         X, y = small_synthetic_data
         # Use fewer components for small data
-        pipeline = build_flat_pca_lda_pipeline(n_components=10)
+        pipeline = build_flat_pca_lda_pipeline(n_components=DEFAULT_N_COMPONENTS_PCA)
         pipeline.fit(X, y)
         predictions = pipeline.predict(X)
 

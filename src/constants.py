@@ -51,9 +51,15 @@ MU_BAND_HIGH: Final[float] = 12.0
 BETA_BAND_LOW: Final[float] = 12.0
 BETA_BAND_HIGH: Final[float] = 30.0
 
+# Filter edge case boundaries (normalized frequency)
+FILTER_EDGE_LOW: Final[float] = 0.01
+FILTER_EDGE_HIGH: Final[float] = 0.99
+
 # =============================================================================
 # Test data dimensions
 # =============================================================================
+TEST_N_EPOCHS: Final[int] = 10
+TEST_N_EPOCHS_LARGE: Final[int] = 50
 TEST_N_CHANNELS: Final[int] = 64
 TEST_N_TIMES: Final[int] = 480
 
@@ -85,6 +91,11 @@ SEPARATOR_WIDTH_NORMAL: Final[int] = 50
 PLOT_FONTSIZE_LABEL: Final[int] = 12
 PLOT_FONTSIZE_TITLE: Final[int] = 14
 PLOT_FONTSIZE_LEGEND: Final[int] = 10
+PLOT_FONTSIZE_SMALL: Final[int] = 8
+PLOT_FONTSIZE_ANNOTATION: Final[int] = 9
+
+# Text offset for bar labels
+PLOT_TEXT_OFFSET: Final[float] = 0.02
 
 # X-axis tick rotation (degrees)
 PLOT_XTICK_ROTATION: Final[int] = 45
@@ -94,3 +105,4 @@ PLOT_FIGSIZE_CV: Final[Tuple[int, int]] = (10, 6)
 PLOT_FIGSIZE_COMPARISON: Final[Tuple[int, int]] = (12, 6)
 PLOT_FIGSIZE_CONFUSION: Final[Tuple[int, int]] = (8, 6)
 PLOT_FIGSIZE_DETAILED: Final[Tuple[int, int]] = (14, 7)
+PLOT_FIGSIZE_SUMMARY: Final[Tuple[int, int]] = (15, 5)

@@ -14,6 +14,8 @@ from constants import (
     PLOT_FONTSIZE_LABEL,
     PLOT_FONTSIZE_TITLE,
     PLOT_FONTSIZE_LEGEND,
+    PLOT_FONTSIZE_ANNOTATION,
+    PLOT_TEXT_OFFSET,
     PLOT_XTICK_ROTATION,
 )
 from visualization._base import _finalize_plot
@@ -85,8 +87,8 @@ def plot_pipeline_comparison(results: Dict[str, Dict],
 
     # Add value labels on bars
     for i, (mean, std) in enumerate(zip(means, stds)):
-        ax.text(i, mean + std + 0.02, f'{mean:.3f}',
-                ha='center', va='bottom', fontsize=9)
+        ax.text(i, mean + std + PLOT_TEXT_OFFSET, f'{mean:.3f}',
+                ha='center', va='bottom', fontsize=PLOT_FONTSIZE_ANNOTATION)
 
     # Highlight best pipeline
     best_idx = 0  # Already sorted
