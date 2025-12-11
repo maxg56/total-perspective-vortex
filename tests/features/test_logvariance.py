@@ -3,6 +3,12 @@ Unit tests for LogVarianceExtractor class.
 """
 
 import numpy as np
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+from constants import EPSILON, RANDOM_STATE, TEST_N_EPOCHS
 
 
 class TestLogVarianceExtractor:
@@ -45,7 +51,7 @@ class TestLogVarianceExtractor:
         X_lv = extractor.fit_transform(X)
 
         # 2D input should apply log transform directly
-        expected = np.log(X + 1e-10)
+        expected = np.log(X + EPSILON)
         np.testing.assert_array_almost_equal(X_lv, expected)
 
     def test_transform_no_nan(self, synthetic_eeg_data):
@@ -62,9 +68,9 @@ class TestLogVarianceExtractor:
         """Test that smaller amplitude signals have smaller variance."""
         from features import LogVarianceExtractor
 
-        np.random.seed(42)
-        X_large = np.random.randn(10, 8, 100) * 10
-        X_small = np.random.randn(10, 8, 100) * 0.1
+        np.random.seed(RANDOM_STATE)
+        X_large = np.random.randn(TEST_N_EPOCHS, 8, 100) * TEST_N_EPOCHS
+        X_small = np.random.randn(TEST_N_EPOCHS, 8, 100) * 0.1
 
         extractor = LogVarianceExtractor()
         lv_large = extractor.fit_transform(X_large)

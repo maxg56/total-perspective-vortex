@@ -3,6 +3,12 @@ Unit tests for PSDExtractor class.
 """
 
 import numpy as np
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+from constants import EEG_SAMPLING_RATE, WELCH_NPERSEG, WELCH_NOVERLAP
 
 
 class TestPSDExtractor:
@@ -13,9 +19,9 @@ class TestPSDExtractor:
         from features import PSDExtractor
 
         extractor = PSDExtractor()
-        assert extractor.fs == 160.0
-        assert extractor.nperseg == 256
-        assert extractor.noverlap == 128
+        assert extractor.fs == EEG_SAMPLING_RATE
+        assert extractor.nperseg == WELCH_NPERSEG
+        assert extractor.noverlap == WELCH_NOVERLAP
         assert 'mu' in extractor.freq_bands
         assert 'beta' in extractor.freq_bands
 

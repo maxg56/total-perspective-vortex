@@ -22,8 +22,11 @@ from constants import (
     MU_BAND_HIGH,
     BETA_BAND_LOW,
     BETA_BAND_HIGH,
+    TEST_N_EPOCHS,
     TEST_N_CHANNELS,
     TEST_N_TIMES,
+    FILTER_EDGE_LOW,
+    FILTER_EDGE_HIGH,
 )
 
 
@@ -147,9 +150,9 @@ class BandPowerExtractor(BaseEstimator, TransformerMixin):
 
             # Handle edge cases
             if low_norm <= 0:
-                low_norm = 0.01
+                low_norm = FILTER_EDGE_LOW
             if high_norm >= 1:
-                high_norm = 0.99
+                high_norm = FILTER_EDGE_HIGH
 
             b, a = signal.butter(4, [low_norm, high_norm], btype='band')
 
@@ -249,7 +252,7 @@ if __name__ == "__main__":
     print("Testing feature extractors...")
 
     # Create dummy EEG data
-    n_epochs, n_channels, n_times = 10, TEST_N_CHANNELS, TEST_N_TIMES
+    n_epochs, n_channels, n_times = TEST_N_EPOCHS, TEST_N_CHANNELS, TEST_N_TIMES
     X = np.random.randn(n_epochs, n_channels, n_times)
 
     # Test PSD extractor

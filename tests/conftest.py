@@ -12,36 +12,44 @@ import os
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+from constants import (
+    RANDOM_STATE,
+    EEG_SAMPLING_RATE,
+    TEST_N_EPOCHS_LARGE,
+    TEST_N_CHANNELS,
+    TEST_N_TIMES,
+)
+
 
 @pytest.fixture
 def random_seed():
     """Fix random seed for reproducibility."""
-    np.random.seed(42)
-    return 42
+    np.random.seed(RANDOM_STATE)
+    return RANDOM_STATE
 
 
 @pytest.fixture
 def n_epochs():
     """Standard number of epochs for testing."""
-    return 50
+    return TEST_N_EPOCHS_LARGE
 
 
 @pytest.fixture
 def n_channels():
     """Standard number of EEG channels (Physionet has 64)."""
-    return 64
+    return TEST_N_CHANNELS
 
 
 @pytest.fixture
 def n_times():
     """Standard number of time points (3 seconds at 160 Hz)."""
-    return 480
+    return TEST_N_TIMES
 
 
 @pytest.fixture
 def fs():
     """Standard sampling frequency."""
-    return 160.0
+    return EEG_SAMPLING_RATE
 
 
 @pytest.fixture
@@ -59,7 +67,7 @@ def synthetic_eeg_data(random_seed, n_epochs, n_channels, n_times):
     y : np.ndarray
         Labels of shape (n_epochs,) with values 1 and 2 (matching Physionet)
     """
-    np.random.seed(42)
+    np.random.seed(RANDOM_STATE)
 
     # Generate base noise
     X = np.random.randn(n_epochs, n_channels, n_times).astype(np.float64)
@@ -94,7 +102,7 @@ def synthetic_eeg_3class(random_seed, n_epochs, n_channels, n_times):
     y : np.ndarray
         Labels with 3 classes
     """
-    np.random.seed(42)
+    np.random.seed(RANDOM_STATE)
 
     n_per_class = n_epochs // 3
     X = np.random.randn(n_per_class * 3, n_channels, n_times)
@@ -115,7 +123,7 @@ def small_synthetic_data(random_seed):
     y : np.ndarray
         Labels
     """
-    np.random.seed(42)
+    np.random.seed(RANDOM_STATE)
 
     n_epochs, n_channels, n_times = 20, 16, 160
     X = np.random.randn(n_epochs, n_channels, n_times)
@@ -144,7 +152,7 @@ def flat_2d_data(random_seed):
     y : np.ndarray
         Labels
     """
-    np.random.seed(42)
+    np.random.seed(RANDOM_STATE)
 
     n_samples, n_features = 100, 50
     X = np.random.randn(n_samples, n_features)
@@ -156,7 +164,7 @@ def flat_2d_data(random_seed):
 @pytest.fixture
 def single_epoch(n_channels, n_times):
     """Generate a single epoch for prediction testing."""
-    np.random.seed(42)
+    np.random.seed(RANDOM_STATE)
     return np.random.randn(n_channels, n_times)
 
 

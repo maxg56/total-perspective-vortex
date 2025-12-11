@@ -3,6 +3,12 @@ Unit tests for BandPowerExtractor class.
 """
 
 import numpy as np
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+from constants import EEG_SAMPLING_RATE
 
 
 class TestBandPowerExtractor:
@@ -13,7 +19,7 @@ class TestBandPowerExtractor:
         from features import BandPowerExtractor
 
         extractor = BandPowerExtractor()
-        assert extractor.fs == 160.0
+        assert extractor.fs == EEG_SAMPLING_RATE
         assert 'mu' in extractor.freq_bands
         assert 'beta' in extractor.freq_bands
 

@@ -15,6 +15,8 @@ from constants import (
     PLOT_FONTSIZE_LABEL,
     PLOT_FONTSIZE_TITLE,
     PLOT_FONTSIZE_LEGEND,
+    PLOT_FONTSIZE_ANNOTATION,
+    PLOT_TEXT_OFFSET,
     PLOT_XTICK_ROTATION,
 )
 from visualization._base import _finalize_plot
@@ -69,8 +71,8 @@ def plot_cv_scores(scores: np.ndarray,
 
     # Add value labels on bars
     for i, (fold, score) in enumerate(zip(folds, scores)):
-        ax.text(fold, score + 0.02, f'{score:.3f}',
-                ha='center', va='bottom', fontsize=9)
+        ax.text(fold, score + PLOT_TEXT_OFFSET, f'{score:.3f}',
+                ha='center', va='bottom', fontsize=PLOT_FONTSIZE_ANNOTATION)
 
     plt.tight_layout()
     return _finalize_plot(fig, save_path, show)
