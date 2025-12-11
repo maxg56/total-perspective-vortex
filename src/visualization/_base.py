@@ -15,6 +15,8 @@ if os.environ.get('DISPLAY') is None:
 import matplotlib.pyplot as plt
 from typing import Optional
 
+from constants import PLOT_DPI
+
 
 def _finalize_plot(fig, save_path: Optional[str] = None, show: bool = False):
     """
@@ -39,7 +41,7 @@ def _finalize_plot(fig, save_path: Optional[str] = None, show: bool = False):
         save_dir = os.path.dirname(save_path)
         if save_dir:
             os.makedirs(save_dir, exist_ok=True)
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.savefig(save_path, dpi=PLOT_DPI, bbox_inches='tight')
         print(f"  [Plot saved: {save_path}]")
 
     if show:

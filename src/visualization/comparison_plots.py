@@ -8,7 +8,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import Dict, Optional
 
-from constants import TARGET_ACCURACY
+from constants import (
+    TARGET_ACCURACY,
+    PLOT_FIGSIZE_COMPARISON,
+    PLOT_FONTSIZE_LABEL,
+    PLOT_FONTSIZE_TITLE,
+    PLOT_FONTSIZE_LEGEND,
+    PLOT_XTICK_ROTATION,
+)
 from visualization._base import _finalize_plot
 
 
@@ -53,7 +60,7 @@ def plot_pipeline_comparison(results: Dict[str, Dict],
     means = [item[1]['mean'] for item in sorted_results]
     stds = [item[1]['std'] for item in sorted_results]
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=PLOT_FIGSIZE_COMPARISON)
 
     # Bar plot with error bars
     x_pos = np.arange(len(names))
@@ -67,13 +74,13 @@ def plot_pipeline_comparison(results: Dict[str, Dict],
                label=f'Target: {TARGET_ACCURACY:.2f}')
 
     # Styling
-    ax.set_xlabel('Pipeline', fontsize=12)
-    ax.set_ylabel('Mean Accuracy', fontsize=12)
-    ax.set_title(title, fontsize=14, fontweight='bold')
+    ax.set_xlabel('Pipeline', fontsize=PLOT_FONTSIZE_LABEL)
+    ax.set_ylabel('Mean Accuracy', fontsize=PLOT_FONTSIZE_LABEL)
+    ax.set_title(title, fontsize=PLOT_FONTSIZE_TITLE, fontweight='bold')
     ax.set_xticks(x_pos)
-    ax.set_xticklabels(names, rotation=45, ha='right')
+    ax.set_xticklabels(names, rotation=PLOT_XTICK_ROTATION, ha='right')
     ax.set_ylim([0, 1])
-    ax.legend(fontsize=10)
+    ax.legend(fontsize=PLOT_FONTSIZE_LEGEND)
     ax.grid(axis='y', alpha=0.3)
 
     # Add value labels on bars

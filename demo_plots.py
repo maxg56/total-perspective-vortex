@@ -9,18 +9,19 @@ import os
 # Add src directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
+from constants import DEFAULT_SUBJECT, DEFAULT_RUN, SEPARATOR_WIDTH_WIDE
 from preprocess import preprocess_subject
 from train import train_with_holdout
 
 
 def main():
     # Get subject and run from command line or use defaults
-    subject = int(sys.argv[1]) if len(sys.argv) > 1 else 4
-    run = int(sys.argv[2]) if len(sys.argv) > 2 else 14
+    subject = int(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_SUBJECT
+    run = int(sys.argv[2]) if len(sys.argv) > 2 else DEFAULT_RUN
 
-    print("=" * 70)
+    print("=" * SEPARATOR_WIDTH_WIDE)
     print("EEG BCI Visualization Demo")
-    print("=" * 70)
+    print("=" * SEPARATOR_WIDTH_WIDE)
     print(f"Subject: {subject}")
     print(f"Run: {run}")
     print()
@@ -48,9 +49,9 @@ def main():
     )
 
     print()
-    print("=" * 70)
+    print("=" * SEPARATOR_WIDTH_WIDE)
     print("RESULTS SUMMARY")
-    print("=" * 70)
+    print("=" * SEPARATOR_WIDTH_WIDE)
     print(f"Cross-validation mean: {cv_scores.mean():.4f} (+/- {cv_scores.std() * 2:.4f})")
     print(f"Test set accuracy: {test_accuracy:.4f}")
     print()
@@ -58,7 +59,7 @@ def main():
     print("  - plots/cv_scores_csp_lda_holdout.png")
     print("  - plots/confusion_matrix_csp_lda.png")
     print("  - plots/training_summary_csp_lda.png")
-    print("=" * 70)
+    print("=" * SEPARATOR_WIDTH_WIDE)
 
 
 if __name__ == "__main__":

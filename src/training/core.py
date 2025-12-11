@@ -12,7 +12,7 @@ from sklearn.model_selection import cross_val_score, StratifiedKFold, train_test
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.pipeline import Pipeline
 
-from constants import RANDOM_STATE, TARGET_ACCURACY
+from constants import RANDOM_STATE, TARGET_ACCURACY, SEPARATOR_WIDTH_NORMAL
 from pipeline import get_pipeline
 from visualization import (plot_cv_scores, plot_confusion_matrix,
                            plot_training_summary)
@@ -65,7 +65,7 @@ def train_and_evaluate(X: NDArray[np.float64], y: NDArray[np.int64],
     scores = cross_val_score(pipeline, X, y, cv=cv_splitter, scoring='accuracy')
 
     if verbose:
-        sep = '=' * 50
+        sep = '=' * SEPARATOR_WIDTH_NORMAL
         print(f"\n{sep}")
         print(f"Pipeline: {pipeline_name}")
         print(f"{sep}")

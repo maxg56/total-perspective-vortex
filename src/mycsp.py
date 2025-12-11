@@ -18,15 +18,16 @@ __all__ = ['MyCSP', 'MyPCA']
 
 if __name__ == "__main__":
     import numpy as np
+    from constants import RANDOM_STATE, TEST_N_CHANNELS, TEST_N_TIMES, DEFAULT_N_COMPONENTS_PCA
 
     # Test CSP implementation
     print("Testing CSP implementation...")
 
     # Create dummy EEG data with 2 classes
-    np.random.seed(42)
+    np.random.seed(RANDOM_STATE)
     n_epochs = 100
-    n_channels = 64
-    n_times = 480
+    n_channels = TEST_N_CHANNELS
+    n_times = TEST_N_TIMES
 
     # Simulate class 1 with higher variance in first channels
     X1 = np.random.randn(n_epochs // 2, n_channels, n_times)
@@ -55,7 +56,7 @@ if __name__ == "__main__":
 
     # Test PCA
     X_flat = X.reshape(X.shape[0], -1)
-    pca = MyPCA(n_components=10)
+    pca = MyPCA(n_components=DEFAULT_N_COMPONENTS_PCA)
     X_pca = pca.fit_transform(X_flat)
 
     print(f"\nPCA input shape: {X_flat.shape}")
