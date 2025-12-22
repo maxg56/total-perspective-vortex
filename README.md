@@ -232,6 +232,58 @@ The `mycsp.py` module contains a custom implementation of Common Spatial Pattern
 - **Minimum accuracy**: 60% on test data
 - **Prediction time**: < 2 seconds per epoch
 
+## Experimental Validation
+
+To prove that the system achieves the ≥60% accuracy threshold across multiple subjects (required for Issue #14), use the provided automated experimental validation script:
+
+### Quick Start
+
+```bash
+# Run all required experiments automatically
+bash run_experiments.sh
+```
+
+This script will:
+1. Train models for subjects 1, 4, and 10 with 5-fold cross-validation
+2. Evaluate on holdout test sets
+3. Measure prediction times
+4. Generate comprehensive results and plots
+5. Validate that the ≥60% accuracy target is met
+
+### Manual Validation
+
+If you prefer to run experiments individually:
+
+```bash
+# Subject 1, Run 6 (hands vs feet motor imagery)
+cd src
+python mybci.py 1 6 train --cv 5
+python mybci.py 1 6 predict
+
+# Subject 4, Run 14 (hands vs feet motor imagery)
+python mybci.py 4 14 train --cv 5
+python mybci.py 4 14 predict
+
+# Subject 10, Run 6 (hands vs feet motor imagery)
+python mybci.py 10 6 train --cv 5
+python mybci.py 10 6 predict
+```
+
+### Results Documentation
+
+After running experiments, results are documented in:
+- **EXPERIMENTAL_RESULTS.md**: Complete experimental results and analysis
+- **results/**: Log files with detailed metrics
+- **plots/**: Visualizations (confusion matrices, CV scores, etc.)
+- **models/**: Trained model files
+
+See [EXPERIMENTAL_RESULTS.md](EXPERIMENTAL_RESULTS.md) for detailed information about:
+- Experimental protocol
+- Per-subject results (CV accuracy, test accuracy, prediction times)
+- Aggregate statistics
+- Target achievement validation
+- Troubleshooting network/environment issues
+
 ## Development
 
 ### Setup Development Environment
