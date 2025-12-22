@@ -148,7 +148,11 @@ import sys
 from pathlib import Path
 
 # Read the log file
-log_file = sorted(Path("results").glob("experiment_log_*.txt"))[-1]
+log_files = sorted(Path("results").glob("experiment_log_*.txt"))
+if not log_files:
+    print("Error: No experiment log files found in 'results' directory.", file=sys.stderr)
+    sys.exit(1)
+log_file = log_files[-1]
 with open(log_file, 'r') as f:
     log_content = f.read()
 
