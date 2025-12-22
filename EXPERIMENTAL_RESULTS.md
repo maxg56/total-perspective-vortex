@@ -247,7 +247,7 @@ If data download fails due to proxy/network restrictions:
 1. Check proxy settings: `env | grep -i proxy`
 2. Try unsetting proxy: `unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY`
 3. Verify DNS resolution: `nslookup physionet.org`
-4. Manually download data from Physionet website if needed
+4. Manually download data from PhysioNet website if needed
 
 ### Out of Memory
 
