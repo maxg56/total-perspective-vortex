@@ -57,6 +57,32 @@ python mybci.py 4 14 predict
 
 ### Visualization
 
+#### Raw Signal Visualization
+
+Visualize raw and filtered EEG signals with power spectral density analysis:
+
+```bash
+# Display raw and filtered EEG signals with PSD
+python demo_raw_signal.py [subject] [run]
+
+# Example: Subject 4, Run 14
+python demo_raw_signal.py 4 14
+```
+
+This demonstration script shows:
+- **Raw EEG signal traces**: Unfiltered signal from all channels
+- **Filtered signal traces**: 7-30 Hz bandpass filtered signal (mu and beta rhythms)
+- **Power Spectral Density (PSD)**: Comparison of raw vs filtered signals in the 7-30 Hz range
+- **Topographic PSD maps**: Spatial distribution of power across frequency bands
+
+This is particularly useful for:
+- Understanding the preprocessing pipeline
+- Validating bandpass filtering (7-30 Hz for motor imagery)
+- Demonstrating signal quality for presentations and defenses
+- Analyzing frequency band characteristics (mu: 8-12 Hz, beta: 12-30 Hz)
+
+#### Training Performance Visualization
+
 The training process automatically generates visualizations to track performance:
 
 ```bash
@@ -121,7 +147,8 @@ tests/
 
 models/             # Saved models directory
 plots/              # Generated visualization plots
-demo_plots.py       # Demonstration script for visualizations
+demo_plots.py       # Demonstration script for training visualizations
+demo_raw_signal.py  # Demonstration script for raw signal visualization
 ```
 
 ## Testing
