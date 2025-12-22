@@ -10,6 +10,34 @@ This project implements a complete BCI pipeline:
 3. **Classification**: LDA, SVM, or Logistic Regression
 4. **Real-time Prediction**: Simulate streaming EEG classification
 
+## Methodological Choices
+
+This section documents the rationale behind key hyperparameters and design decisions in the recommended `csp_lda` pipeline.
+
+### 7–30 Hz Frequency Band
+
+The bandpass filter (defined in [constants.py](src/constants.py)) targets the **mu (8–12 Hz)** and **beta (12–30 Hz)** frequency bands, which are the primary neural oscillations modulated during motor imagery and motor execution tasks. These bands exhibit event-related desynchronization (ERD) and synchronization (ERS) patterns that are critical for discriminating between different motor imagery conditions.
+
+**Oral explanation**: *We filter EEG signals between 7-30 Hz to capture mu and beta rhythms, which are modulated during motor imagery. Lower frequencies (delta, theta) and higher frequencies (gamma) are excluded to reduce artifacts and focus on motor-related brain activity.*
+
+### 6 CSP Components
+
+The CSP algorithm (implemented in [transforms/csp.py](src/transforms/csp.py)) selects `n_components/2` spatial filters from each end of the eigenvalue spectrum—with 6 components, we extract **3 filters optimized for each class**. This configuration balances discriminative power (capturing class-specific spatial patterns) with dimensionality reduction to prevent overfitting, particularly given the limited number of trials (~45 epochs) per run in the Physionet dataset.
+
+**Oral explanation**: *Six CSP components (3 per class) provide sufficient discriminative information while avoiding overfitting on small datasets. More components would increase model complexity without proportional gains in accuracy.*
+
+### Log-Variance Feature Extraction
+
+CSP features are computed as the **log-variance of spatially filtered signals** ([transforms/csp.py:187-189](src/transforms/csp.py)). The logarithm transforms the multiplicative variance structure into an additive one, making the feature distribution approximately Gaussian—a critical assumption for optimal Linear Discriminant Analysis performance.
+
+**Oral explanation**: *Log-variance transformation normalizes CSP feature distributions to be approximately Gaussian. This mathematical property directly aligns with LDA's assumption of normally distributed features, maximizing classifier performance.*
+
+### LDA Classifier
+
+Linear Discriminant Analysis ([pipeline.py](src/pipeline.py)) is the standard classifier for CSP-based BCIs because it assumes **Gaussian class-conditional distributions**—precisely what log-variance CSP features provide. LDA is computationally efficient, requires no hyperparameter tuning, and finds the optimal linear decision boundary when its Gaussian assumption holds, making it ideal for real-time BCI applications.
+
+**Oral explanation**: *LDA is optimal for Gaussian-distributed features like log-variance CSP outputs. It requires minimal computation and no hyperparameter tuning, making it suitable for real-time brain-computer interfaces.*
+
 ## Installation
 
 ```bash
