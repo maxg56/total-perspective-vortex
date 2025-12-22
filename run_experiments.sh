@@ -8,7 +8,6 @@
 # Usage: bash run_experiments.sh
 #
 
-set -e  # Exit on error
 
 echo "============================================================"
 echo "  Total Perspective Vortex - Experimental Validation"
