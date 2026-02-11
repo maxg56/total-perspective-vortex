@@ -30,7 +30,7 @@ types-requests==2.32.4.20250913
 # Transitive dependencies (required by main packages)
 # NumPy/SciPy ecosystem
 packaging==25.0
-pillow==12.0.0
+pillow==12.1.1
 pyparsing==3.2.5
 python-dateutil==3.2.5
 six==1.17.0
