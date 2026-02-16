@@ -40,6 +40,14 @@ Linear Discriminant Analysis ([pipeline.py](src/pipeline.py)) is the standard cl
 
 ## Installation
 
+Using `uv` (recommended):
+
+```bash
+uv sync
+```
+
+Or using `pip`:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -293,11 +301,12 @@ See [EXPERIMENTAL_RESULTS.md](EXPERIMENTAL_RESULTS.md) for detailed information 
 git clone <repository-url>
 cd total-perspective-vortex
 
-# Create virtual environment
+# Install dependencies using uv (recommended)
+uv sync
+
+# Or using pip
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install dependencies (including development tools)
 pip install -r requirements.txt
 
 # Install pre-commit hooks
