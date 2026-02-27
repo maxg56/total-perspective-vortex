@@ -74,6 +74,33 @@ DEFAULT_N_COMPONENTS_PCA_PIPELINE: Final[int] = 50
 # =============================================================================
 TARGET_ACCURACY: Final[float] = 0.60
 
+# Per-experiment accuracy targets (6 experiments across 109 subjects)
+# Experiments group runs into consecutive pairs:
+#   Exp 0: runs 3,4  (left/right, repetition 1)
+#   Exp 1: runs 5,6  (fists/feet, repetition 1)
+#   Exp 2: runs 7,8  (left/right, repetition 2)
+#   Exp 3: runs 9,10 (fists/feet, repetition 2)
+#   Exp 4: runs 11,12 (left/right, repetition 3)
+#   Exp 5: runs 13,14 (fists/feet, repetition 3)
+EXPERIMENT_TARGETS: Final[dict] = {
+    0: 0.59,
+    1: 0.57,
+    2: 0.71,
+    3: 0.60,
+    4: 0.59,
+    5: 0.67,
+}
+
+# Mapping from run number to experiment index
+RUN_TO_EXPERIMENT: Final[dict] = {
+    3: 0, 4: 0,
+    5: 1, 6: 1,
+    7: 2, 8: 2,
+    9: 3, 10: 3,
+    11: 4, 12: 4,
+    13: 5, 14: 5,
+}
+
 # Prediction time limit (seconds)
 MAX_PREDICTION_TIME: Final[float] = 2.0
 

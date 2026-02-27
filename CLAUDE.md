@@ -174,11 +174,11 @@ mypy is configured in [setup.cfg](setup.cfg) with:
 
 ## Development Workflow
 
-1. **Environment setup**: `python -m venv .venv && source .venv/bin/activate && pip install -r requirements-lock.txt`
-2. **Install pre-commit**: `pre-commit install`
+1. **Environment setup**: `uv sync`
+2. **Install pre-commit**: `uv run pre-commit install`
 3. **Make changes**: Follow PEP 8, add type hints, write NumPy-style docstrings
 4. **Add tests**: Use synthetic data from conftest.py fixtures
-5. **Run quality checks**: `pre-commit run --all-files && pytest tests/ -v`
+5. **Run quality checks**: `uv run pre-commit run --all-files && uv run pytest tests/ -v`
 6. **Commit**: Pre-commit hooks run automatically
 
 ## Important Notes
@@ -186,4 +186,4 @@ mypy is configured in [setup.cfg](setup.cfg) with:
 - The CLI must be run from the `src/` directory due to path manipulation in mybci.py
 - Model files are saved to `models/` directory with naming convention `model_s{subject}_r{run}_{pipeline}.pkl`
 - Plots are saved to `plots/` directory when using `--save-plots`
-- Use `requirements-lock.txt` for reproducible builds (includes exact versions)
+- Use `uv sync` with `uv.lock` for reproducible builds

@@ -23,9 +23,8 @@ flake8==7.3.0
 flake8-docstrings==1.7.0
 mypy==1.19.1
 pre-commit==4.5.1
-
-# Type stubs
-types-requests==2.32.4.20250913
+pytest==9.0.2
+pytest-mock==3.15.1
 
 # Transitive dependencies (required by main packages)
 # NumPy/SciPy ecosystem
@@ -33,7 +32,6 @@ packaging==25.0
 pillow==12.1.1
 pyparsing==3.2.5
 python-dateutil==2.9.0.post0
-six==1.17.0
 cycler==0.12.1
 fonttools==4.61.1
 kiwisolver==1.4.9

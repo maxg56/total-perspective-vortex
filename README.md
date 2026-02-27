@@ -40,16 +40,8 @@ Linear Discriminant Analysis ([pipeline.py](src/pipeline.py)) is the standard cl
 
 ## Installation
 
-Using `uv` (recommended):
-
 ```bash
 uv sync
-```
-
-Or using `pip`:
-
-```bash
-pip install -r requirements.txt
 ```
 
 ## Usage
@@ -194,18 +186,14 @@ The project includes a comprehensive test suite with 148 tests using pytest.
 ### Running Tests
 
 ```bash
-# Install test dependencies
-pip install pytest pytest-mock
-
 # Run all tests
-pytest tests/ -v
+uv run pytest tests/ -v
 
 # Run specific test file
-pytest tests/test_mycsp.py -v
+uv run pytest tests/test_mycsp.py -v
 
 # Run with coverage
-pip install pytest-cov
-pytest tests/ --cov=src --cov-report=html
+uv run pytest tests/ --cov=src --cov-report=html
 ```
 
 ### Test Coverage
@@ -301,16 +289,11 @@ See [EXPERIMENTAL_RESULTS.md](EXPERIMENTAL_RESULTS.md) for detailed information 
 git clone <repository-url>
 cd total-perspective-vortex
 
-# Install dependencies using uv (recommended)
+# Install dependencies
 uv sync
 
-# Or using pip
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-
 # Install pre-commit hooks
-pre-commit install
+uv run pre-commit install
 ```
 
 ### Code Quality Tools
@@ -325,43 +308,16 @@ This project uses several tools to maintain code quality:
 
 ```bash
 # Run flake8
-flake8 src/ tests/
+uv run flake8 src/ tests/
 
 # Run mypy for type checking
-mypy src/ --ignore-missing-imports
+uv run mypy src/ --ignore-missing-imports
 
 # Run all pre-commit hooks manually
-pre-commit run --all-files
+uv run pre-commit run --all-files
 
 # Run tests
-pytest tests/ -v
-```
-
-### Pre-commit Hooks
-
-Pre-commit hooks automatically run on every commit. They will:
-- Check for trailing whitespace
-- Ensure files end with newline
-- Validate YAML files
-- Run flake8 for style checking
-- Run mypy for type checking
-
-If any check fails, the commit will be rejected. Fix the issues and commit again.
-
-### Type Hints
-
-All modules include comprehensive type hints for better code documentation and static analysis:
-
-```python
-from typing import List, Tuple, Optional
-from numpy.typing import NDArray
-import numpy as np
-
-def preprocess_subject(
-    subject: int,
-    runs: List[int]
-) -> Tuple[NDArray[np.float64], NDArray[np.int64], mne.Epochs]:
-    ...
+uv run pytest tests/ -v
 ```
 
 ### Configuration Files
@@ -369,37 +325,6 @@ def preprocess_subject(
 - `.flake8`: Flake8 configuration (line length, ignored errors)
 - `setup.cfg`: Mypy configuration
 - `.pre-commit-config.yaml`: Pre-commit hooks configuration
-
-### Contributing Guidelines
-
-1. **Create a feature branch**
-   ```bash
-   git checkout -b feature/my-feature
-   ```
-
-2. **Make your changes**
-   - Follow PEP 8 style guide
-   - Add type hints to new functions
-   - Write docstrings (NumPy style)
-   - Add tests for new functionality
-
-3. **Run quality checks**
-   ```bash
-   pre-commit run --all-files
-   pytest tests/ -v
-   ```
-
-4. **Commit your changes**
-   ```bash
-   git add .
-   git commit -m "feat: add new feature"
-   ```
-   Pre-commit hooks will run automatically.
-
-5. **Push and create Pull Request**
-   ```bash
-   git push origin feature/my-feature
-   ```
 
 ## License
 

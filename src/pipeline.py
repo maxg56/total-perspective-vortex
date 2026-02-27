@@ -12,10 +12,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 
-from constants import EEG_SAMPLING_RATE, DEFAULT_N_COMPONENTS_PCA_PIPELINE
-from mycsp import MyCSP, MyPCA
+from constants import (EEG_SAMPLING_RATE, DEFAULT_N_COMPONENTS_PCA_PIPELINE,
+                       RANDOM_STATE)
+from transforms import MyCSP, MyPCA
 from features import PSDExtractor, BandPowerExtractor, FlattenExtractor
 
 
@@ -100,6 +102,33 @@ def build_csp_lr_pipeline(n_components: int = 6, reg: Optional[float] = None,
     return pipeline
 
 
+def build_csp_rf_pipeline(n_components: int = 6, reg: Optional[float] = None,
+                          n_estimators: int = 100) -> Pipeline:
+    """
+    Build a CSP + Random Forest pipeline.
+
+    Parameters
+    ----------
+    n_components : int
+        Number of CSP components
+    reg : float
+        Regularization for CSP
+    n_estimators : int
+        Number of trees in the forest
+
+    Returns
+    -------
+    pipeline : Pipeline
+    """
+    pipeline = Pipeline([
+        ('csp', MyCSP(n_components=n_components, reg=reg, log=True)),
+        ('scaler', StandardScaler()),
+        ('rf', RandomForestClassifier(
+            n_estimators=n_estimators, random_state=RANDOM_STATE))
+    ])
+    return pipeline
+
+
 def build_psd_lda_pipeline(fs: float = EEG_SAMPLING_RATE) -> Pipeline:
     """
     Build a PSD + LDA pipeline.
@@ -179,6 +208,7 @@ def get_pipeline(pipeline_name: str = 'csp_lda', **kwargs) -> Pipeline:
         - 'csp_lda': CSP + LDA (default, recommended)
         - 'csp_svm': CSP + SVM
         - 'csp_lr': CSP + Logistic Regression
+        - 'csp_rf': CSP + Random Forest
         - 'psd_lda': PSD features + LDA
         - 'bandpower_lda': Band power features + LDA
         - 'flat_pca_lda': Flattened + PCA + LDA
@@ -193,6 +223,7 @@ def get_pipeline(pipeline_name: str = 'csp_lda', **kwargs) -> Pipeline:
         'csp_lda': build_csp_lda_pipeline,
         'csp_svm': build_csp_svm_pipeline,
         'csp_lr': build_csp_lr_pipeline,
+        'csp_rf': build_csp_rf_pipeline,
         'psd_lda': build_psd_lda_pipeline,
         'bandpower_lda': build_bandpower_lda_pipeline,
         'flat_pca_lda': build_flat_pca_lda_pipeline,
@@ -208,7 +239,10 @@ def get_pipeline(pipeline_name: str = 'csp_lda', **kwargs) -> Pipeline:
 
 def list_pipelines() -> list:
     """Return list of available pipeline names."""
-    return ['csp_lda', 'csp_svm', 'csp_lr', 'psd_lda', 'bandpower_lda', 'flat_pca_lda']
+    return [
+        'csp_lda', 'csp_svm', 'csp_lr', 'csp_rf',
+        'psd_lda', 'bandpower_lda', 'flat_pca_lda',
+    ]
 
 
 if __name__ == "__main__":

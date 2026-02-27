@@ -11,7 +11,7 @@ class TestMyCSPInit:
 
     def test_init_default_params(self):
         """Test MyCSP initialization with default parameters."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         csp = MyCSP()
         assert csp.n_components == 4
@@ -21,7 +21,7 @@ class TestMyCSPInit:
 
     def test_init_custom_params(self):
         """Test MyCSP with custom parameters."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         csp = MyCSP(n_components=6, reg=0.01, log=False, norm_trace=False)
         assert csp.n_components == 6
@@ -35,7 +35,7 @@ class TestMyCSPFit:
 
     def test_fit_returns_self(self, synthetic_eeg_data):
         """Test that fit returns self."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
         csp = MyCSP()
@@ -45,7 +45,7 @@ class TestMyCSPFit:
 
     def test_fit_creates_attributes(self, synthetic_eeg_data):
         """Test that fit creates W_ and eigenvalues_ attributes."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
         csp = MyCSP(n_components=4)
@@ -58,7 +58,7 @@ class TestMyCSPFit:
 
     def test_fit_requires_two_classes(self, synthetic_eeg_3class):
         """Test that fit raises error for non-binary classification."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_3class
         csp = MyCSP()
@@ -68,7 +68,7 @@ class TestMyCSPFit:
 
     def test_fit_with_regularization(self, synthetic_eeg_data):
         """Test CSP fit with regularization parameter."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
         csp = MyCSP(n_components=4, reg=0.1)
@@ -79,7 +79,7 @@ class TestMyCSPFit:
 
     def test_fit_eigenvalues_sorted(self, synthetic_eeg_data):
         """Test that eigenvalues are properly sorted (first half high, second half low)."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
         csp = MyCSP(n_components=4)
@@ -98,7 +98,7 @@ class TestMyCSPTransform:
 
     def test_transform_not_fitted_raises_error(self, synthetic_eeg_data):
         """Test that transform raises error if not fitted."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
         csp = MyCSP()
@@ -108,7 +108,7 @@ class TestMyCSPTransform:
 
     def test_transform_output_shape(self, synthetic_eeg_data, n_epochs):
         """Test CSP transform output shape."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
         n_components = 4
@@ -121,7 +121,7 @@ class TestMyCSPTransform:
 
     def test_transform_no_nan(self, synthetic_eeg_data):
         """Test that transform does not produce NaN values."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
         csp = MyCSP()
@@ -132,7 +132,7 @@ class TestMyCSPTransform:
 
     def test_transform_log_option(self, synthetic_eeg_data):
         """Test log=True vs log=False output."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
 
@@ -150,7 +150,7 @@ class TestMyCSPTransform:
 
     def test_transform_normalized_variances(self, synthetic_eeg_data):
         """Test that variances are normalized (sum to 1)."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
         csp = MyCSP(n_components=4, log=False)
@@ -167,7 +167,7 @@ class TestMyCSPFitTransform:
 
     def test_fit_transform_equals_fit_then_transform(self, synthetic_eeg_data):
         """Test that fit_transform equals fit().transform()."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
 
@@ -187,7 +187,7 @@ class TestMyCSPCovariance:
 
     def test_compute_covariance_shape(self, synthetic_eeg_data, n_channels):
         """Test _compute_covariance output shape."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
         csp = MyCSP()
@@ -198,7 +198,7 @@ class TestMyCSPCovariance:
 
     def test_compute_covariance_symmetric(self, synthetic_eeg_data):
         """Test that covariance matrix is symmetric."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
         csp = MyCSP()
@@ -208,7 +208,7 @@ class TestMyCSPCovariance:
 
     def test_compute_covariance_positive_semidefinite(self, synthetic_eeg_data):
         """Test that covariance matrix is positive semi-definite."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         X, y = synthetic_eeg_data
         csp = MyCSP()

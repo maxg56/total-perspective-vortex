@@ -39,8 +39,6 @@ per-file-ignores =
     tests/*:E501,D
     # __init__ files don't need docstrings
     __init__.py:D104
-    # Demo scripts can be more relaxed
-    demo_plots.py:D,E501
 
 # Docstring conventions
 docstring-convention = numpy

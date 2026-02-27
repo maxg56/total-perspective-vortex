@@ -18,7 +18,7 @@ from sklearn.pipeline import Pipeline
 
 from constants import MAX_PREDICTION_TIME
 from preprocess import preprocess_subject
-from train import load_model
+from training import load_model
 
 # Configure logging
 logger = logging.getLogger(__name__)

@@ -7,6 +7,7 @@ Tests prediction functions:
 - simulate_realtime_prediction
 """
 
+import os
 import numpy as np
 import time
 
@@ -240,7 +241,7 @@ class TestPredictFromFile:
     def test_load_and_predict(self, trained_csp_pipeline, temp_model_dir, tmp_path):
         """Test prediction from saved model and data files."""
         from predict import predict_from_file
-        from train import save_model
+        from training import save_model
 
         pipeline, X, y = trained_csp_pipeline
 
@@ -257,10 +258,6 @@ class TestPredictFromFile:
 
         assert 'accuracy' in result
         assert len(result['predictions']) == len(y)
-
-
-# Need to import os at module level for TestPredictFromFile
-import os
 
 
 class TestPredictionConsistency:
