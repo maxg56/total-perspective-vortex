@@ -29,6 +29,6 @@ repos:
     rev: v1.8.0
     hooks:
       - id: mypy
-        additional_dependencies: [numpy, types-requests]
+        additional_dependencies: [numpy]
         args: ['--config-file=setup.cfg', '--ignore-missing-imports']
         exclude: '^tests/'

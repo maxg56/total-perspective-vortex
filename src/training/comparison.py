@@ -86,10 +86,10 @@ def compare_pipelines(
     if plot and valid_results:
         # Bar plot comparison
         comp_save = "plots/pipeline_comparison.png" if save_plots else None
-        plot_pipeline_comparison(results, save_path=comp_save)
+        plot_pipeline_comparison(valid_results, save_path=comp_save)
 
         # Detailed box plot
         detail_save = "plots/pipeline_comparison_detailed.png" if save_plots else None
-        plot_cv_detailed(results, save_path=detail_save)
+        plot_cv_detailed(valid_results, save_path=detail_save)
 
     return results

@@ -10,14 +10,14 @@ class TestMyPCAInit:
 
     def test_init_default_params(self):
         """Test MyPCA initialization with default parameters."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         pca = MyPCA()
         assert pca.n_components == 10
 
     def test_init_custom_params(self):
         """Test MyPCA with custom parameters."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         pca = MyPCA(n_components=20)
         assert pca.n_components == 20
@@ -28,7 +28,7 @@ class TestMyPCAFit:
 
     def test_fit_returns_self(self, flat_2d_data):
         """Test that fit returns self."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         X, y = flat_2d_data
         pca = MyPCA()
@@ -38,7 +38,7 @@ class TestMyPCAFit:
 
     def test_fit_creates_attributes(self, flat_2d_data):
         """Test that fit creates necessary attributes."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         X, y = flat_2d_data
         pca = MyPCA(n_components=5)
@@ -52,7 +52,7 @@ class TestMyPCAFit:
 
     def test_fit_mean_shape(self, flat_2d_data):
         """Test mean_ has correct shape."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         X, y = flat_2d_data
         pca = MyPCA()
@@ -62,7 +62,7 @@ class TestMyPCAFit:
 
     def test_explained_variance_ratio_sums_to_one(self, flat_2d_data):
         """Test that explained variance ratios sum to <= 1."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         X, y = flat_2d_data
         pca = MyPCA(n_components=10)
@@ -77,7 +77,7 @@ class TestMyPCATransform:
 
     def test_transform_output_shape(self, flat_2d_data):
         """Test PCA transform output shape."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         X, y = flat_2d_data
         n_components = 5
@@ -90,7 +90,7 @@ class TestMyPCATransform:
 
     def test_transform_no_nan(self, flat_2d_data):
         """Test that transform does not produce NaN values."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         X, y = flat_2d_data
         pca = MyPCA()
@@ -101,7 +101,7 @@ class TestMyPCATransform:
 
     def test_transform_reduces_dimensionality(self, flat_2d_data):
         """Test that PCA reduces dimensionality."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         X, y = flat_2d_data
         n_components = 5
@@ -118,7 +118,7 @@ class TestMyPCAConsistency:
 
     def test_pca_components_orthogonal(self, flat_2d_data):
         """Test that PCA components are orthogonal."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         X, y = flat_2d_data
         pca = MyPCA(n_components=5)
@@ -130,7 +130,7 @@ class TestMyPCAConsistency:
 
     def test_explained_variance_descending(self, flat_2d_data):
         """Test that explained variance is in descending order."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         X, y = flat_2d_data
         pca = MyPCA(n_components=10)

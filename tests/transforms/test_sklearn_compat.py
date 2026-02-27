@@ -8,7 +8,7 @@ class TestSklearnCompatibility:
 
     def test_csp_sklearn_interface(self):
         """Test MyCSP is sklearn compatible."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         csp = MyCSP()
         assert hasattr(csp, 'fit')
@@ -19,7 +19,7 @@ class TestSklearnCompatibility:
 
     def test_pca_sklearn_interface(self):
         """Test MyPCA is sklearn compatible."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         pca = MyPCA()
         assert hasattr(pca, 'fit')
@@ -29,7 +29,7 @@ class TestSklearnCompatibility:
 
     def test_csp_get_set_params(self):
         """Test CSP get_params and set_params."""
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         csp = MyCSP(n_components=4, reg=0.1)
         params = csp.get_params()
@@ -42,7 +42,7 @@ class TestSklearnCompatibility:
 
     def test_pca_get_set_params(self):
         """Test PCA get_params and set_params."""
-        from mycsp import MyPCA
+        from transforms import MyPCA
 
         pca = MyPCA(n_components=10)
         params = pca.get_params()

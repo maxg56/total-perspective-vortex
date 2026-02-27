@@ -15,7 +15,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
 from constants import EEG_SAMPLING_RATE, DEFAULT_N_COMPONENTS_PCA_PIPELINE
-from mycsp import MyCSP, MyPCA
+from transforms import MyCSP, MyPCA
 from features import PSDExtractor, BandPowerExtractor, FlattenExtractor
 
 

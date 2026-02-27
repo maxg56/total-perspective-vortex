@@ -18,7 +18,7 @@ class TestBuildCspLdaPipeline:
     def test_has_csp_step(self):
         """Test pipeline has CSP step."""
         from pipeline import build_csp_lda_pipeline
-        from mycsp import MyCSP
+        from transforms import MyCSP
 
         pipeline = build_csp_lda_pipeline()
         steps = dict(pipeline.steps)
