@@ -40,16 +40,8 @@ Linear Discriminant Analysis ([pipeline.py](src/pipeline.py)) is the standard cl
 
 ## Installation
 
-Using `uv` (recommended):
-
 ```bash
 uv sync
-```
-
-Or using `pip`:
-
-```bash
-pip install -r requirements.txt
 ```
 
 ## Usage
@@ -194,18 +186,14 @@ The project includes a comprehensive test suite with 148 tests using pytest.
 ### Running Tests
 
 ```bash
-# Install test dependencies
-pip install pytest pytest-mock
-
 # Run all tests
-pytest tests/ -v
+uv run pytest tests/ -v
 
 # Run specific test file
-pytest tests/test_mycsp.py -v
+uv run pytest tests/test_mycsp.py -v
 
 # Run with coverage
-pip install pytest-cov
-pytest tests/ --cov=src --cov-report=html
+uv run pytest tests/ --cov=src --cov-report=html
 ```
 
 ### Test Coverage
@@ -301,16 +289,11 @@ See [EXPERIMENTAL_RESULTS.md](EXPERIMENTAL_RESULTS.md) for detailed information 
 git clone <repository-url>
 cd total-perspective-vortex
 
-# Install dependencies using uv (recommended)
+# Install dependencies
 uv sync
 
-# Or using pip
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-
 # Install pre-commit hooks
-pre-commit install
+uv run pre-commit install
 ```
 
 ### Code Quality Tools
@@ -325,16 +308,16 @@ This project uses several tools to maintain code quality:
 
 ```bash
 # Run flake8
-flake8 src/ tests/
+uv run flake8 src/ tests/
 
 # Run mypy for type checking
-mypy src/ --ignore-missing-imports
+uv run mypy src/ --ignore-missing-imports
 
 # Run all pre-commit hooks manually
-pre-commit run --all-files
+uv run pre-commit run --all-files
 
 # Run tests
-pytest tests/ -v
+uv run pytest tests/ -v
 ```
 
 ### Pre-commit Hooks
@@ -385,8 +368,8 @@ def preprocess_subject(
 
 3. **Run quality checks**
    ```bash
-   pre-commit run --all-files
-   pytest tests/ -v
+   uv run pre-commit run --all-files
+   uv run pytest tests/ -v
    ```
 
 4. **Commit your changes**
