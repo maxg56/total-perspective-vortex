@@ -320,69 +320,11 @@ uv run pre-commit run --all-files
 uv run pytest tests/ -v
 ```
 
-### Pre-commit Hooks
-
-Pre-commit hooks automatically run on every commit. They will:
-- Check for trailing whitespace
-- Ensure files end with newline
-- Validate YAML files
-- Run flake8 for style checking
-- Run mypy for type checking
-
-If any check fails, the commit will be rejected. Fix the issues and commit again.
-
-### Type Hints
-
-All modules include comprehensive type hints for better code documentation and static analysis:
-
-```python
-from typing import List, Tuple, Optional
-from numpy.typing import NDArray
-import numpy as np
-
-def preprocess_subject(
-    subject: int,
-    runs: List[int]
-) -> Tuple[NDArray[np.float64], NDArray[np.int64], mne.Epochs]:
-    ...
-```
-
 ### Configuration Files
 
 - `.flake8`: Flake8 configuration (line length, ignored errors)
 - `setup.cfg`: Mypy configuration
 - `.pre-commit-config.yaml`: Pre-commit hooks configuration
-
-### Contributing Guidelines
-
-1. **Create a feature branch**
-   ```bash
-   git checkout -b feature/my-feature
-   ```
-
-2. **Make your changes**
-   - Follow PEP 8 style guide
-   - Add type hints to new functions
-   - Write docstrings (NumPy style)
-   - Add tests for new functionality
-
-3. **Run quality checks**
-   ```bash
-   uv run pre-commit run --all-files
-   uv run pytest tests/ -v
-   ```
-
-4. **Commit your changes**
-   ```bash
-   git add .
-   git commit -m "feat: add new feature"
-   ```
-   Pre-commit hooks will run automatically.
-
-5. **Push and create Pull Request**
-   ```bash
-   git push origin feature/my-feature
-   ```
 
 ## License
 
