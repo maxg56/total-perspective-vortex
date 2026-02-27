@@ -24,10 +24,10 @@ are the most discriminative spatial filters.
 
 from typing import Optional
 import numpy as np
-from scipy import linalg
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from constants import EPSILON, EPSILON_SMALL
+from transforms.linalg import my_eigh_generalized
 
 
 class MyCSP(BaseEstimator, TransformerMixin):
@@ -126,15 +126,10 @@ class MyCSP(BaseEstimator, TransformerMixin):
         cov_composite = cov1 + cov2
 
         # Solve generalized eigenvalue problem: cov1 @ W = cov_composite @ W @ D
-        # This is equivalent to finding eigenvectors of cov_composite^(-1) @ cov1
-        try:
-            eigenvalues, eigenvectors = linalg.eigh(cov1, cov_composite)
-        except linalg.LinAlgError:
-            # If decomposition fails, add regularization
-            eigenvalues, eigenvectors = linalg.eigh(
-                cov1 + EPSILON_SMALL * np.eye(cov1.shape[0]),
-                cov_composite + EPSILON_SMALL * np.eye(cov_composite.shape[0])
-            )
+        # Uses custom Jacobi-based solver with Cholesky reduction
+        eigenvalues, eigenvectors = my_eigh_generalized(
+            cov1, cov_composite
+        )
 
         # Sort eigenvalues and eigenvectors in descending order
         sorted_idx = np.argsort(eigenvalues)[::-1]

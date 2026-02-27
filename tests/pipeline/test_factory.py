@@ -22,17 +22,18 @@ class TestListPipelines:
 
         result = list_pipelines()
         expected = ['csp_lda', 'csp_svm', 'csp_lr', 'csp_rf',
-                    'psd_lda', 'bandpower_lda', 'flat_pca_lda']
+                    'psd_lda', 'bandpower_lda', 'flat_pca_lda',
+                    'wavelet_lda', 'wavelet_custom', 'csp_custom']
 
         for name in expected:
             assert name in result
 
-    def test_returns_seven_pipelines(self):
-        """Test that exactly 7 pipelines are available."""
+    def test_returns_ten_pipelines(self):
+        """Test that exactly 10 pipelines are available."""
         from pipeline import list_pipelines
 
         result = list_pipelines()
-        assert len(result) == 7
+        assert len(result) == 10
 
 
 class TestGetPipeline:
@@ -43,7 +44,8 @@ class TestGetPipeline:
         from pipeline import get_pipeline
 
         for name in ['csp_lda', 'csp_svm', 'csp_lr', 'csp_rf',
-                     'psd_lda', 'bandpower_lda', 'flat_pca_lda']:
+                     'psd_lda', 'bandpower_lda', 'flat_pca_lda',
+                     'wavelet_lda', 'wavelet_custom', 'csp_custom']:
             pipeline = get_pipeline(name)
             assert isinstance(pipeline, Pipeline)
 
