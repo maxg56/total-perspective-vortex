@@ -32,7 +32,7 @@ types-requests==2.32.4.20250913
 packaging==25.0
 pillow==12.1.1
 pyparsing==3.2.5
-python-dateutil==2.9.0.post0
+python-dateutil==3.2.5
 six==1.17.0
 cycler==0.12.1
 fonttools==4.61.1
