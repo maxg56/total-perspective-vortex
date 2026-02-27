@@ -148,7 +148,7 @@ def simulate_realtime_prediction(
     accuracy = accuracy_score(y, predictions)
     avg_time = np.mean(times)
     max_pred_time: float = np.max(times)
-    within_limit = max_pred_time < max_time
+    within_limit = bool(max_pred_time < max_time)
 
     if verbose:
         sep = '=' * 60

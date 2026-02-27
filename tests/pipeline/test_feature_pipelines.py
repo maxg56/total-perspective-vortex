@@ -8,7 +8,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from sklearn.pipeline import Pipeline
-from constants import EEG_SAMPLING_RATE, DEFAULT_N_COMPONENTS_PCA
+from constants import DEFAULT_N_COMPONENTS_PCA
 
 
 class TestBuildPsdLdaPipeline:
