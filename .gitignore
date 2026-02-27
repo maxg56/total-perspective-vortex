@@ -30,7 +30,3 @@ results/
 
 ### OS files ###
 .DS_Store
-
-### Lock files ###
-uv.lock
-.python-version
