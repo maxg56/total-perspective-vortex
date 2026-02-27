@@ -105,6 +105,46 @@ class TestBuildCspSvmPipeline:
         assert len(predictions) == len(y)
 
 
+class TestBuildCspRfPipeline:
+    """Tests for build_csp_rf_pipeline function."""
+
+    def test_returns_pipeline(self):
+        """Test that build_csp_rf_pipeline returns Pipeline."""
+        from pipeline import build_csp_rf_pipeline
+
+        pipeline = build_csp_rf_pipeline()
+        assert isinstance(pipeline, Pipeline)
+
+    def test_has_expected_steps(self):
+        """Test pipeline has CSP, scaler, and RF steps."""
+        from pipeline import build_csp_rf_pipeline
+
+        pipeline = build_csp_rf_pipeline()
+        steps = dict(pipeline.steps)
+        assert 'csp' in steps
+        assert 'scaler' in steps
+        assert 'rf' in steps
+
+    def test_rf_parameters(self):
+        """Test RF parameters can be customized."""
+        from pipeline import build_csp_rf_pipeline
+
+        pipeline = build_csp_rf_pipeline(n_estimators=50)
+        rf = dict(pipeline.steps)['rf']
+        assert rf.n_estimators == 50
+
+    def test_fit_predict(self, small_synthetic_data):
+        """Test pipeline can fit and predict."""
+        from pipeline import build_csp_rf_pipeline
+
+        X, y = small_synthetic_data
+        pipeline = build_csp_rf_pipeline(n_components=4)
+        pipeline.fit(X, y)
+        predictions = pipeline.predict(X)
+
+        assert len(predictions) == len(y)
+
+
 class TestBuildCspLrPipeline:
     """Tests for build_csp_lr_pipeline function."""
 

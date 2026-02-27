@@ -35,7 +35,9 @@ import logging
 # Add src directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from constants import MIN_SUBJECT, MAX_SUBJECT, VALID_RUNS, TARGET_ACCURACY  # noqa: E402
+from constants import (MIN_SUBJECT, MAX_SUBJECT, VALID_RUNS,  # noqa: E402
+                       TARGET_ACCURACY, EXPERIMENT_TARGETS,
+                       RUN_TO_EXPERIMENT)
 from training import train_subject, compare_pipelines  # noqa: E402
 from predict import run_prediction  # noqa: E402
 from preprocess import preprocess_subject, get_run_type  # noqa: E402
@@ -186,11 +188,17 @@ def mode_train(args: argparse.Namespace) -> int:
     print(f"Cross-validation scores: {scores}")
     print(f"Mean accuracy: {scores.mean():.4f} (+/- {scores.std() * 2:.4f})")
 
-    if scores.mean() >= TARGET_ACCURACY:
-        print(f"\n*** TARGET ACCURACY ({TARGET_ACCURACY:.0%}) ACHIEVED! ***")
+    # Check per-experiment target
+    exp_idx = RUN_TO_EXPERIMENT.get(args.run)
+    exp_target = EXPERIMENT_TARGETS.get(exp_idx, TARGET_ACCURACY) if exp_idx is not None \
+        else TARGET_ACCURACY
+
+    if scores.mean() >= exp_target:
+        print(f"\n*** TARGET ACCURACY (exp {exp_idx}: {exp_target:.0%}) ACHIEVED! ***")
     else:
-        gap = TARGET_ACCURACY - scores.mean()
-        print(f"\n*** Target accuracy not reached (need {gap:.4f} more) ***")
+        gap = exp_target - scores.mean()
+        print(f"\n*** Target accuracy not reached "
+              f"(exp {exp_idx}: need {gap:.4f} more for {exp_target:.0%}) ***")
 
     return 0
 
@@ -219,10 +227,15 @@ def mode_predict(args: argparse.Namespace) -> int:
     status = 'PASSED' if results['within_time_limit'] else 'FAILED'
     print(f"Time limit (2s): {status}")
 
-    if results['accuracy'] >= TARGET_ACCURACY:
-        print(f"\n*** TARGET ACCURACY ({TARGET_ACCURACY:.0%}) ACHIEVED! ***")
+    exp_idx = RUN_TO_EXPERIMENT.get(args.run)
+    exp_target = EXPERIMENT_TARGETS.get(exp_idx, TARGET_ACCURACY) if exp_idx is not None \
+        else TARGET_ACCURACY
+
+    if results['accuracy'] >= exp_target:
+        print(f"\n*** TARGET ACCURACY (exp {exp_idx}: {exp_target:.0%}) ACHIEVED! ***")
     else:
-        print("\n*** Target accuracy not reached ***")
+        print(f"\n*** Target accuracy not reached "
+              f"(exp {exp_idx}: {exp_target:.0%}) ***")
 
     return 0
 
