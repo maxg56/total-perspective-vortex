@@ -136,7 +136,7 @@ def plot_training_summary(
     ax1.set_xlabel('Fold', fontsize=PLOT_FONTSIZE_LEGEND)
     ax1.set_ylabel('Accuracy', fontsize=PLOT_FONTSIZE_LEGEND)
     ax1.set_title('Cross-Validation Scores', fontsize=PLOT_FONTSIZE_LABEL, fontweight='bold')
-    ax1.set_ylim([0, 1])
+    ax1.set_ylim((0, 1))
     ax1.set_xticks(folds)
     ax1.legend(fontsize=PLOT_FONTSIZE_SMALL)
     ax1.grid(axis='y', alpha=0.3)
@@ -193,7 +193,7 @@ def plot_training_summary(
     ax3.set_xlabel('Class', fontsize=PLOT_FONTSIZE_LEGEND)
     ax3.set_ylabel('Accuracy', fontsize=PLOT_FONTSIZE_LEGEND)
     ax3.set_title('Per-Class Accuracy', fontsize=PLOT_FONTSIZE_LABEL, fontweight='bold')
-    ax3.set_ylim([0, 1])
+    ax3.set_ylim((0, 1))
     ax3.set_xticks(classes)
     if class_names:
         ax3.set_xticklabels(class_names)

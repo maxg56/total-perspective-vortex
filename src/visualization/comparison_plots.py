@@ -81,7 +81,7 @@ def plot_pipeline_comparison(results: Dict[str, Dict],
     ax.set_title(title, fontsize=PLOT_FONTSIZE_TITLE, fontweight='bold')
     ax.set_xticks(x_pos)
     ax.set_xticklabels(names, rotation=PLOT_XTICK_ROTATION, ha='right')
-    ax.set_ylim([0, 1])
+    ax.set_ylim((0, 1))
     ax.legend(fontsize=PLOT_FONTSIZE_LEGEND)
     ax.grid(axis='y', alpha=0.3)
 
