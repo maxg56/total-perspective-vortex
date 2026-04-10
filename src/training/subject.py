@@ -52,7 +52,9 @@ def train_subject(subject: int, runs: List[int],
     scores : np.ndarray
         Cross-validation scores
     """
-    display.section(f"Training BCI model — Subject: {subject}, Runs: {runs}, Pipeline: {pipeline_name}")
+    display.section(
+        f"Training BCI model — Subject: {subject}, Runs: {runs}, Pipeline: {pipeline_name}"
+    )
 
     print("\nLoading and preprocessing data...")
     X, y, epochs = preprocess_subject(subject, runs)

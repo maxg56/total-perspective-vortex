@@ -231,12 +231,16 @@ def build_wavelet_lda_pipeline(
 def build_wavelet_custom_pipeline(
         fs: float = EEG_SAMPLING_RATE,
         n_scales_per_band: int = 5,
+        n_components: int = 10,
         shrink_threshold: Optional[float] = None) -> Pipeline:
     """
-    Build a Wavelet + custom Nearest Centroid pipeline.
+    Build a Wavelet + PCA + custom Nearest Centroid pipeline.
 
-    Uses Continuous Wavelet Transform features with a custom
-    nearest centroid classifier.
+    Uses Continuous Wavelet Transform features with PCA dimensionality
+    reduction followed by a custom nearest centroid classifier. PCA is
+    necessary because wavelet features live in a high-dimensional space
+    (n_channels * n_bands) where nearest-centroid degrades severely
+    without prior reduction.
 
     Parameters
     ----------
@@ -244,6 +248,8 @@ def build_wavelet_custom_pipeline(
         Sampling frequency
     n_scales_per_band : int
         Number of wavelet scales per frequency band
+    n_components : int
+        Number of PCA components to retain before classification
     shrink_threshold : float or None
         Shrinkage threshold for the classifier
 
@@ -255,6 +261,7 @@ def build_wavelet_custom_pipeline(
         ('wavelet', WaveletExtractor(
             fs=fs, n_scales_per_band=n_scales_per_band)),
         ('scaler', StandardScaler()),
+        ('pca', MyPCA(n_components=n_components)),
         ('clf', MyNearestCentroid(
             shrink_threshold=shrink_threshold))
     ])

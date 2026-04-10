@@ -61,8 +61,10 @@ def train_and_evaluate(X: NDArray[np.float64], y: NDArray[np.int64],
     # Build pipeline
     pipeline = get_pipeline(pipeline_name, **pipeline_kwargs)
 
-    # Cross-validation
-    cv_splitter = StratifiedKFold(n_splits=cv, shuffle=True, random_state=RANDOM_STATE)
+    # Cross-validation — cap folds to min class count to avoid degenerate splits
+    _, class_counts = np.unique(y, return_counts=True)
+    n_splits = max(2, min(cv, int(class_counts.min())))
+    cv_splitter = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
     scores = cross_val_score(pipeline, X, y, cv=cv_splitter, scoring='accuracy')
 
     if verbose:
@@ -133,8 +135,10 @@ def train_with_holdout(X: NDArray[np.float64], y: NDArray[np.int64],
     # Build pipeline
     pipeline = get_pipeline(pipeline_name, **pipeline_kwargs)
 
-    # Cross-validation on training set
-    cv_splitter = StratifiedKFold(n_splits=cv, shuffle=True, random_state=RANDOM_STATE)
+    # Cross-validation on training set — cap folds to min class count
+    _, train_class_counts = np.unique(y_train, return_counts=True)
+    n_splits = max(2, min(cv, int(train_class_counts.min())))
+    cv_splitter = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
     cv_scores = cross_val_score(pipeline, X_train, y_train, cv=cv_splitter, scoring='accuracy')
 
     if verbose:

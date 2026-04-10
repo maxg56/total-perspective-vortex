@@ -26,7 +26,7 @@ from typing import Optional
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from constants import EPSILON, EPSILON_SMALL
+from constants import EPSILON
 from transforms.linalg import my_eigh_generalized
 
 

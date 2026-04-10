@@ -52,10 +52,15 @@ def compare_pipelines(
     if verbose:
         display.section("Comparing all pipelines")
 
+    _, class_counts = np.unique(y, return_counts=True)
+    n_splits = max(2, min(cv, int(class_counts.min())))
+
     for name in list_pipelines():
         try:
             pipeline = get_pipeline(name)
-            cv_splitter = StratifiedKFold(n_splits=cv, shuffle=True, random_state=RANDOM_STATE)
+            cv_splitter = StratifiedKFold(
+                n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE
+            )
             scores = cross_val_score(pipeline, X, y, cv=cv_splitter, scoring='accuracy')
             results[name] = {
                 'mean': scores.mean(),
