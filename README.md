@@ -52,12 +52,12 @@ Train a model on a specific subject and run:
 
 ```bash
 cd src
-python mybci.py <subject> <run> train
+uv run python mybci.py <subject> <run> train
 ```
 
 Example:
 ```bash
-python mybci.py 4 14 train
+uv run python mybci.py 4 14 train
 ```
 
 ### Prediction
@@ -65,12 +65,12 @@ python mybci.py 4 14 train
 Run prediction with a trained model:
 
 ```bash
-python mybci.py <subject> <run> predict
+uv run python mybci.py <subject> <run> predict
 ```
 
 Example:
 ```bash
-python mybci.py 4 14 predict
+uv run python mybci.py 4 14 predict
 ```
 
 ### Options
@@ -91,10 +91,10 @@ Visualize raw and filtered EEG signals with power spectral density analysis:
 
 ```bash
 # Display raw and filtered EEG signals with PSD
-python demo_raw_signal.py [subject] [run]
+uv run python demo_raw_signal.py [subject] [run]
 
 # Example: Subject 4, Run 14
-python demo_raw_signal.py 4 14
+uv run python demo_raw_signal.py 4 14
 ```
 
 This demonstration script shows:
@@ -115,7 +115,7 @@ The training process automatically generates visualizations to track performance
 
 ```bash
 # Generate plots during training (saved to plots/ directory)
-python demo_plots.py 4 14
+uv run python demo_plots.py 4 14
 ```
 
 Available visualizations:
@@ -253,16 +253,16 @@ If you prefer to run experiments individually:
 ```bash
 # Subject 1, Run 6 (hands vs feet motor imagery)
 cd src
-python mybci.py 1 6 train --cv 5
-python mybci.py 1 6 predict
+uv run python mybci.py 1 6 train --cv 5
+uv run python mybci.py 1 6 predict
 
 # Subject 4, Run 14 (hands vs feet motor imagery)
-python mybci.py 4 14 train --cv 5
-python mybci.py 4 14 predict
+uv run python mybci.py 4 14 train --cv 5
+uv run python mybci.py 4 14 predict
 
 # Subject 10, Run 6 (hands vs feet motor imagery)
-python mybci.py 10 6 train --cv 5
-python mybci.py 10 6 predict
+uv run python mybci.py 10 6 train --cv 5
+uv run python mybci.py 10 6 predict
 ```
 
 ### Results Documentation
