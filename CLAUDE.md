@@ -11,42 +11,42 @@ Total Perspective Vortex is an EEG Brain-Computer Interface (BCI) system for mot
 ### Testing
 ```bash
 # Run all tests (148 tests total)
-pytest tests/ -v
+uv run pytest tests/ -v
 
 # Run specific test file
-pytest tests/test_mycsp.py -v
+uv run pytest tests/test_mycsp.py -v
 
 # Run with coverage
-pytest tests/ --cov=src --cov-report=html
+uv run pytest tests/ --cov=src --cov-report=html
 ```
 
 ### Code Quality
 ```bash
 # Run flake8 style checking
-flake8 src/ tests/
+uv run flake8 src/ tests/
 
 # Run mypy type checking
-mypy src/ --ignore-missing-imports
+uv run mypy src/ --ignore-missing-imports
 
 # Run all pre-commit hooks manually
-pre-commit run --all-files
+uv run pre-commit run --all-files
 ```
 
 ### Training and Prediction
 ```bash
 # Train a model (from src/ directory)
 cd src
-python mybci.py <subject> <run> train [--pipeline csp_lda] [--cv 5]
+uv run python mybci.py <subject> <run> train [--pipeline csp_lda] [--cv 5]
 
 # Run prediction
-python mybci.py <subject> <run> predict
+uv run python mybci.py <subject> <run> predict
 
 # Compare all pipelines
-python mybci.py 4 14 train --compare
+uv run python mybci.py 4 14 train --compare
 
 # Generate demo plots
 cd ..  # back to root
-python demo_plots.py 4 14
+uv run python demo_plots.py 4 14
 ```
 
 ## Architecture Overview
