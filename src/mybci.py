@@ -36,12 +36,12 @@ import logging
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from constants import (MIN_SUBJECT, MAX_SUBJECT, VALID_RUNS,  # noqa: E402
-                       TARGET_ACCURACY, EXPERIMENT_TARGETS,
-                       RUN_TO_EXPERIMENT)
+                       EXPERIMENT_TARGETS, RUN_TO_EXPERIMENT)
 from training import train_subject, compare_pipelines  # noqa: E402
 from predict import run_prediction  # noqa: E402
 from preprocess import preprocess_subject, get_run_type  # noqa: E402
 from pipeline import list_pipelines  # noqa: E402
+import display  # noqa: E402
 
 # Configure logging
 logging.basicConfig(
@@ -114,29 +114,17 @@ Examples:
 
 def validate_args(args: argparse.Namespace) -> None:
     """Validate command line arguments."""
-    # Validate subject number
     if args.subject < MIN_SUBJECT or args.subject > MAX_SUBJECT:
-        logger.error(f"Subject must be between {MIN_SUBJECT} and {MAX_SUBJECT}, got {args.subject}")
-        print(f"Error: Subject must be between {MIN_SUBJECT} and {MAX_SUBJECT}, got {args.subject}")
+        msg = f"Subject must be between {MIN_SUBJECT} and {MAX_SUBJECT}, got {args.subject}"
+        logger.error(msg)
+        print(f"Error: {msg}")
         sys.exit(1)
 
-    # Validate run number
     if args.run not in VALID_RUNS:
-        logger.error(f"Run must be one of {VALID_RUNS}, got {args.run}")
-        print(f"Error: Run must be one of {VALID_RUNS}, got {args.run}")
+        msg = f"Run must be one of {VALID_RUNS}, got {args.run}"
+        logger.error(msg)
+        print(f"Error: {msg}")
         sys.exit(1)
-
-
-def print_header(args: argparse.Namespace) -> None:
-    """Print program header."""
-    print("\n" + "=" * 60)
-    print("    Total Perspective Vortex - EEG BCI System")
-    print("=" * 60)
-    print(f"Subject: {args.subject}")
-    print(f"Run: {args.run} ({get_run_type(args.run)})")
-    print(f"Mode: {args.mode}")
-    print(f"Pipeline: {args.pipeline}")
-    print("=" * 60)
 
 
 def mode_train(args: argparse.Namespace) -> int:
@@ -146,24 +134,20 @@ def mode_train(args: argparse.Namespace) -> int:
     save_plots = args.save_plots
 
     if args.compare:
-        # Compare all pipelines
         print("\nLoading and preprocessing data...")
         X, y, epochs = preprocess_subject(args.subject, [args.run])
-        print(f"Data shape: {X.shape}")
-        print(f"Labels: {len(y)} epochs")
+        display.print_data_info(X, y)
 
         results = compare_pipelines(
             X, y, cv=args.cv, verbose=verbose,
             plot=plot, save_plots=save_plots)
 
-        # Find best and train with it
         valid_results = {k: v for k, v in results.items() if v is not None}
         if valid_results:
             best_name = max(valid_results.items(), key=lambda x: x[1]['mean'])[0]
             print(f"\nTraining best pipeline: {best_name}")
             args.pipeline = best_name
 
-    # Train model
     pipeline_kwargs = {}
     if 'csp' in args.pipeline:
         pipeline_kwargs['n_components'] = args.n_components
@@ -181,61 +165,27 @@ def mode_train(args: argparse.Namespace) -> int:
         **pipeline_kwargs
     )
 
-    # Print final summary
-    print("\n" + "=" * 60)
-    print("TRAINING COMPLETE")
-    print("=" * 60)
-    print(f"Cross-validation scores: {scores}")
-    print(f"Mean accuracy: {scores.mean():.4f} (+/- {scores.std() * 2:.4f})")
-
-    # Check per-experiment target
     exp_idx = RUN_TO_EXPERIMENT.get(args.run)
-    exp_target = EXPERIMENT_TARGETS.get(exp_idx, TARGET_ACCURACY) if exp_idx is not None \
-        else TARGET_ACCURACY
-
-    if scores.mean() >= exp_target:
-        print(f"\n*** TARGET ACCURACY (exp {exp_idx}: {exp_target:.0%}) ACHIEVED! ***")
-    else:
-        gap = exp_target - scores.mean()
-        print(f"\n*** Target accuracy not reached "
-              f"(exp {exp_idx}: need {gap:.4f} more for {exp_target:.0%}) ***")
+    exp_target = EXPERIMENT_TARGETS.get(exp_idx, 0.60) if exp_idx is not None else 0.60
+    display.print_training_summary(scores, exp_idx, exp_target)
 
     return 0
 
 
 def mode_predict(args: argparse.Namespace) -> int:
     """Execute prediction mode."""
-    verbose = not args.quiet
-
-    # Run prediction
     results = run_prediction(
         args.subject,
         [args.run],
         model_path=args.model_path,
         model_dir=args.model_dir,
         pipeline_name=args.pipeline,
-        verbose=verbose
+        verbose=not args.quiet
     )
 
-    # Print final summary
-    print("\n" + "=" * 60)
-    print("PREDICTION COMPLETE")
-    print("=" * 60)
-    print(f"Accuracy: {results['accuracy']:.4f}")
-    print(f"Average prediction time: {results['avg_time'] * 1000:.2f} ms")
-    print(f"Max prediction time: {results['max_time'] * 1000:.2f} ms")
-    status = 'PASSED' if results['within_time_limit'] else 'FAILED'
-    print(f"Time limit (2s): {status}")
-
     exp_idx = RUN_TO_EXPERIMENT.get(args.run)
-    exp_target = EXPERIMENT_TARGETS.get(exp_idx, TARGET_ACCURACY) if exp_idx is not None \
-        else TARGET_ACCURACY
-
-    if results['accuracy'] >= exp_target:
-        print(f"\n*** TARGET ACCURACY (exp {exp_idx}: {exp_target:.0%}) ACHIEVED! ***")
-    else:
-        print(f"\n*** Target accuracy not reached "
-              f"(exp {exp_idx}: {exp_target:.0%}) ***")
+    exp_target = EXPERIMENT_TARGETS.get(exp_idx, 0.60) if exp_idx is not None else 0.60
+    display.print_prediction_summary(results, exp_idx, exp_target)
 
     return 0
 
@@ -244,7 +194,7 @@ def main() -> int:
     """Execute main program logic."""
     args = parse_args()
     validate_args(args)
-    print_header(args)
+    display.print_header(args.subject, args.run, args.mode, args.pipeline, get_run_type(args.run))
 
     try:
         if args.mode == 'train':

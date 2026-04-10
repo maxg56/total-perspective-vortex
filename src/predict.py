@@ -16,6 +16,7 @@ from numpy.typing import NDArray
 from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline
 
+import display
 from constants import MAX_PREDICTION_TIME
 from preprocess import preprocess_subject
 from training import load_model
@@ -120,15 +121,9 @@ def simulate_realtime_prediction(
     correct = np.zeros(n_epochs, dtype=bool)
 
     if verbose:
-        sep = '=' * 60
-        print(f"\n{sep}")
-        print("Real-time prediction simulation")
-        print(f"{sep}")
-        print(f"Processing {n_epochs} epochs (max {max_time}s per epoch)")
-        print(f"{sep}\n")
+        display.print_realtime_header(n_epochs, max_time)
 
     for i in range(n_epochs):
-        # Predict single epoch
         pred, pred_time = predict_single_epoch(pipeline, X[i])
 
         predictions[i] = pred
@@ -136,31 +131,19 @@ def simulate_realtime_prediction(
         correct[i] = (pred == y[i])
 
         if verbose:
-            status = "True" if correct[i] else "False"
-            time_ok = "" if pred_time <= max_time else " [SLOW]"
-            print(f"epoch {i:02d}: [{pred}] [{y[i]}] {status}{time_ok}")
+            display.print_realtime_epoch(i, int(pred), int(y[i]), pred_time, max_time)
 
-        # Optional delay for visualization
         if delay > 0:
             time.sleep(delay)
 
-    # Calculate results
     accuracy = accuracy_score(y, predictions)
     avg_time = np.mean(times)
     max_pred_time: float = np.max(times)
     within_limit = bool(max_pred_time < max_time)
 
     if verbose:
-        sep = '=' * 60
-        print(f"\n{sep}")
-        print("Summary")
-        print(f"{sep}")
-        correct_count = int(accuracy * n_epochs)
-        print(f"Accuracy: {accuracy:.4f} ({correct_count}/{n_epochs})")
-        print(f"Average prediction time: {avg_time * 1000:.2f} ms")
-        print(f"Max prediction time: {max_pred_time * 1000:.2f} ms")
-        status = 'PASSED' if within_limit else 'FAILED'
-        print(f"Time limit ({max_time}s): {status}")
+        display.print_realtime_summary(accuracy, n_epochs, avg_time, max_pred_time,
+                                       within_limit, max_time)
 
     return {
         'predictions': predictions,
@@ -209,37 +192,24 @@ def run_prediction(subject: int, runs: List[int],
         )
 
     if verbose:
-        sep = '=' * 60
-        print(f"\n{sep}")
-        print("BCI Prediction")
-        print(f"Subject: {subject}, Runs: {runs}")
-        print(f"Model: {model_path}")
-        print(f"{sep}")
-
-    # Load model
-    if verbose:
-        print("\nLoading model...")
+        display.section(f"BCI Prediction — Subject: {subject}, Runs: {runs}")
 
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model not found: {model_path}")
 
+    if verbose:
+        print("\nLoading model...")
+
     pipeline, metadata = load_model(model_path)
 
     if verbose:
-        print("Model loaded successfully")
-        print(f"Training subject: {metadata.get('subject', 'unknown')}")
-        print(f"Training runs: {metadata.get('runs', 'unknown')}")
-        print(f"CV accuracy: {metadata.get('cv_mean', 'unknown'):.4f}")
-
-    # Load test data
-    if verbose:
+        display.print_model_info(model_path, metadata)
         print("\nLoading test data...")
 
     X, y, _ = preprocess_subject(subject, runs)
 
     if verbose:
-        print(f"Test data shape: {X.shape}")
-        print(f"Test labels: {np.unique(y)}")
+        display.print_data_info(X, y)
 
     # Run real-time simulation
     results = simulate_realtime_prediction(pipeline, X, y, verbose=verbose)
@@ -287,12 +257,6 @@ if __name__ == "__main__":
     subject = int(sys.argv[1]) if len(sys.argv) > 1 else 1
     run = int(sys.argv[2]) if len(sys.argv) > 2 else 6
 
-    print("EEG BCI Prediction")
-    print("=" * 60)
-
-    # Run prediction
+    display.section("EEG BCI Prediction")
     results = run_prediction(subject, [run])
-
-    print("\n" + "=" * 60)
-    print("Prediction complete!")
-    print(f"Final accuracy: {results['accuracy']:.4f}")
+    print(f"\nFinal accuracy: {results['accuracy']:.4f}")

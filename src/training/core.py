@@ -12,7 +12,8 @@ from sklearn.model_selection import cross_val_score, StratifiedKFold, train_test
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.pipeline import Pipeline
 
-from constants import RANDOM_STATE, TARGET_ACCURACY, SEPARATOR_WIDTH_NORMAL
+import display
+from constants import RANDOM_STATE, TARGET_ACCURACY
 from pipeline import get_pipeline
 from visualization import (plot_cv_scores, plot_confusion_matrix,
                            plot_training_summary)
@@ -65,22 +66,7 @@ def train_and_evaluate(X: NDArray[np.float64], y: NDArray[np.int64],
     scores = cross_val_score(pipeline, X, y, cv=cv_splitter, scoring='accuracy')
 
     if verbose:
-        sep = '=' * SEPARATOR_WIDTH_NORMAL
-        print(f"\n{sep}")
-        print(f"Pipeline: {pipeline_name}")
-        print(f"{sep}")
-        print(f"Cross-validation scores: {scores}")
-        std_dev = scores.std() * 2
-        print(f"Mean accuracy: {scores.mean():.4f} (+/- {std_dev:.4f})")
-        print(f"Min: {scores.min():.4f}, Max: {scores.max():.4f}")
-
-        # Check if target achieved
-        if scores.mean() >= TARGET_ACCURACY:
-            print(f"Target accuracy ({TARGET_ACCURACY:.0%}) ACHIEVED")
-        else:
-            gap = TARGET_ACCURACY - scores.mean()
-            print(f"Target accuracy ({TARGET_ACCURACY:.0%}) NOT achieved "
-                  f"- need {gap:.4f} more")
+        display.print_cv_result(scores, pipeline_name, TARGET_ACCURACY)
 
     # Fit on all data for final model
     pipeline.fit(X, y)

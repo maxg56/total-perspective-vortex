@@ -10,6 +10,7 @@ import numpy as np
 from numpy.typing import NDArray
 from sklearn.pipeline import Pipeline
 
+import display
 from preprocess import preprocess_subject, get_run_type
 from training.core import train_and_evaluate
 from training.persistence import save_model
@@ -51,22 +52,11 @@ def train_subject(subject: int, runs: List[int],
     scores : np.ndarray
         Cross-validation scores
     """
-    sep = '=' * 60
-    print(f"\n{sep}")
-    print("Training BCI model")
-    print(f"Subject: {subject}, Runs: {runs}")
-    print(f"Pipeline: {pipeline_name}")
-    print(f"{sep}")
+    display.section(f"Training BCI model — Subject: {subject}, Runs: {runs}, Pipeline: {pipeline_name}")
 
-    # Preprocess data
     print("\nLoading and preprocessing data...")
     X, y, epochs = preprocess_subject(subject, runs)
-
-    print(f"Data shape: {X.shape}")
-    print(f"Labels: {np.unique(y)}")
-    unique, counts = np.unique(y, return_counts=True)
-    class_dist = dict(zip(unique, counts))
-    print(f"Class distribution: {class_dist}")
+    display.print_data_info(X, y)
 
     # Train and evaluate
     pipeline, scores = train_and_evaluate(

@@ -111,6 +111,7 @@ MAX_PREDICTION_TIME: Final[float] = 2.0
 PLOT_DPI: Final[int] = 300
 
 # Text separator widths
+SEPARATOR_WIDTH: Final[int] = 60
 SEPARATOR_WIDTH_WIDE: Final[int] = 70
 SEPARATOR_WIDTH_NORMAL: Final[int] = 50
 
