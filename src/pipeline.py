@@ -18,7 +18,9 @@ from sklearn.preprocessing import StandardScaler
 from constants import (EEG_SAMPLING_RATE, DEFAULT_N_COMPONENTS_PCA_PIPELINE,
                        RANDOM_STATE)
 from transforms import MyCSP, MyPCA
-from features import PSDExtractor, BandPowerExtractor, FlattenExtractor
+from features import (PSDExtractor, BandPowerExtractor, FlattenExtractor,
+                      WaveletExtractor)
+from classifiers import MyNearestCentroid
 
 
 def build_csp_lda_pipeline(n_components: int = 6, reg: Optional[float] = None) -> Pipeline:
@@ -197,6 +199,99 @@ def build_flat_pca_lda_pipeline(n_components: int = DEFAULT_N_COMPONENTS_PCA_PIP
     return pipeline
 
 
+def build_wavelet_lda_pipeline(
+        fs: float = EEG_SAMPLING_RATE,
+        n_scales_per_band: int = 5) -> Pipeline:
+    """
+    Build a Wavelet + LDA pipeline.
+
+    Uses Continuous Wavelet Transform (Morlet) to extract time-frequency
+    energy features, followed by LDA classification.
+
+    Parameters
+    ----------
+    fs : float
+        Sampling frequency
+    n_scales_per_band : int
+        Number of wavelet scales per frequency band
+
+    Returns
+    -------
+    pipeline : Pipeline
+    """
+    pipeline = Pipeline([
+        ('wavelet', WaveletExtractor(
+            fs=fs, n_scales_per_band=n_scales_per_band)),
+        ('scaler', StandardScaler()),
+        ('lda', LinearDiscriminantAnalysis())
+    ])
+    return pipeline
+
+
+def build_wavelet_custom_pipeline(
+        fs: float = EEG_SAMPLING_RATE,
+        n_scales_per_band: int = 5,
+        shrink_threshold: Optional[float] = None) -> Pipeline:
+    """
+    Build a Wavelet + custom Nearest Centroid pipeline.
+
+    Uses Continuous Wavelet Transform features with a custom
+    nearest centroid classifier.
+
+    Parameters
+    ----------
+    fs : float
+        Sampling frequency
+    n_scales_per_band : int
+        Number of wavelet scales per frequency band
+    shrink_threshold : float or None
+        Shrinkage threshold for the classifier
+
+    Returns
+    -------
+    pipeline : Pipeline
+    """
+    pipeline = Pipeline([
+        ('wavelet', WaveletExtractor(
+            fs=fs, n_scales_per_band=n_scales_per_band)),
+        ('scaler', StandardScaler()),
+        ('clf', MyNearestCentroid(
+            shrink_threshold=shrink_threshold))
+    ])
+    return pipeline
+
+
+def build_csp_custom_pipeline(
+        n_components: int = 6,
+        reg: Optional[float] = None,
+        shrink_threshold: Optional[float] = None) -> Pipeline:
+    """
+    Build a CSP + custom Nearest Centroid pipeline.
+
+    Uses CSP spatial filtering with a custom nearest centroid classifier.
+
+    Parameters
+    ----------
+    n_components : int
+        Number of CSP components
+    reg : float
+        Regularization for CSP
+    shrink_threshold : float or None
+        Shrinkage threshold for the classifier
+
+    Returns
+    -------
+    pipeline : Pipeline
+    """
+    pipeline = Pipeline([
+        ('csp', MyCSP(n_components=n_components, reg=reg, log=True)),
+        ('scaler', StandardScaler()),
+        ('clf', MyNearestCentroid(
+            shrink_threshold=shrink_threshold))
+    ])
+    return pipeline
+
+
 def get_pipeline(pipeline_name: str = 'csp_lda', **kwargs) -> Pipeline:
     """
     Get a pipeline by name.
@@ -212,6 +307,9 @@ def get_pipeline(pipeline_name: str = 'csp_lda', **kwargs) -> Pipeline:
         - 'psd_lda': PSD features + LDA
         - 'bandpower_lda': Band power features + LDA
         - 'flat_pca_lda': Flattened + PCA + LDA
+        - 'wavelet_lda': Wavelet transform + LDA
+        - 'wavelet_custom': Wavelet + custom Nearest Centroid
+        - 'csp_custom': CSP + custom Nearest Centroid
     **kwargs : dict
         Additional arguments for the pipeline constructor
 
@@ -227,6 +325,9 @@ def get_pipeline(pipeline_name: str = 'csp_lda', **kwargs) -> Pipeline:
         'psd_lda': build_psd_lda_pipeline,
         'bandpower_lda': build_bandpower_lda_pipeline,
         'flat_pca_lda': build_flat_pca_lda_pipeline,
+        'wavelet_lda': build_wavelet_lda_pipeline,
+        'wavelet_custom': build_wavelet_custom_pipeline,
+        'csp_custom': build_csp_custom_pipeline,
     }
 
     if pipeline_name not in pipelines:
@@ -242,6 +343,7 @@ def list_pipelines() -> list:
     return [
         'csp_lda', 'csp_svm', 'csp_lr', 'csp_rf',
         'psd_lda', 'bandpower_lda', 'flat_pca_lda',
+        'wavelet_lda', 'wavelet_custom', 'csp_custom',
     ]
 
 
