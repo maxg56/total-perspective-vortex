@@ -21,7 +21,8 @@ env/
 
 ### Project outputs ###
 plots/
-models/*.pkl
+*/models/*.pkl
+*.pkl
 results/
 
 ### Tool caches ###
