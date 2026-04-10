@@ -116,9 +116,9 @@ def simulate_realtime_prediction(
         - within_time_limit: whether all predictions were within time limit
     """
     n_epochs = len(y)
-    predictions = np.zeros(n_epochs, dtype=int)
-    times = np.zeros(n_epochs)
-    correct = np.zeros(n_epochs, dtype=bool)
+    predictions: NDArray[np.int_] = np.zeros(n_epochs, dtype=int)
+    times: NDArray[np.float64] = np.zeros(n_epochs)
+    correct: NDArray[np.bool_] = np.zeros(n_epochs, dtype=bool)
 
     if verbose:
         display.print_realtime_header(n_epochs, max_time)
@@ -137,8 +137,8 @@ def simulate_realtime_prediction(
             time.sleep(delay)
 
     accuracy = accuracy_score(y, predictions)
-    avg_time = np.mean(times)
-    max_pred_time: float = np.max(times)
+    avg_time: float = float(np.mean(times))
+    max_pred_time: float = float(np.max(times))
     within_limit = bool(max_pred_time < max_time)
 
     if verbose:

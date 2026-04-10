@@ -74,7 +74,7 @@ class MyNearestCentroid(BaseEstimator, ClassifierMixin):
                                    dtype=np.float64)
         for i, cls in enumerate(self.classes_):
             mask = (y == cls)
-            n_samples_cls = np.sum(mask)
+            n_samples_cls: int = int(np.sum(mask))
             # Manual mean computation
             centroid = np.zeros(n_features, dtype=np.float64)
             for j in range(X.shape[0]):

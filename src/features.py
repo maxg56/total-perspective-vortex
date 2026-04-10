@@ -312,7 +312,7 @@ def _cwt_morlet(x: NDArray[np.float64], scales: NDArray[np.float64],
     # FFT of the input signal
     x_fft = np.fft.fft(x)
 
-    coefficients = np.zeros((n_scales, n_times), dtype=np.float64)
+    coefficients: NDArray[np.float64] = np.zeros((n_scales, n_times), dtype=np.float64)
 
     for i, scale in enumerate(scales):
         # Generate wavelet in time domain, then FFT

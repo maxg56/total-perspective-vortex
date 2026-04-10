@@ -44,9 +44,6 @@ uv run python mybci.py <subject> <run> predict
 # Compare all pipelines
 uv run python mybci.py 4 14 train --compare
 
-# Generate demo plots
-cd ..  # back to root
-uv run python demo_plots.py 4 14
 ```
 
 ## Architecture Overview

@@ -89,7 +89,7 @@ class MyPCA(BaseEstimator, TransformerMixin):
             self.components_ = components[:, :self.n_components]
 
         self.explained_variance_ = eigenvalues[:self.n_components]
-        total_var = np.sum(np.maximum(eigenvalues, 0.0))
+        total_var: float = float(np.sum(np.maximum(eigenvalues, 0.0)))
         self.explained_variance_ratio_ = (
             self.explained_variance_ / (total_var + EPSILON)
         )

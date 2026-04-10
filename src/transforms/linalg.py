@@ -228,7 +228,7 @@ def my_eigh(A: NDArray[np.float64],
     for _ in range(max_iter):
         # Compute sum of squares of off-diagonal elements (vectorized)
         off_diag = np.triu(S, k=1)
-        off_diag_sum = np.sum(off_diag ** 2)
+        off_diag_sum: float = float(np.sum(off_diag ** 2))
 
         if off_diag_sum < tol:
             break

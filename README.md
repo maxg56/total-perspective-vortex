@@ -111,12 +111,6 @@ This is particularly useful for:
 
 #### Training Performance Visualization
 
-The training process automatically generates visualizations to track performance:
-
-```bash
-# Generate plots during training (saved to plots/ directory)
-uv run python demo_plots.py 4 14
-```
 
 Available visualizations:
 - **Cross-validation scores**: Bar chart showing accuracy for each CV fold
@@ -175,7 +169,6 @@ tests/
 
 models/             # Saved models directory
 plots/              # Generated visualization plots
-demo_plots.py       # Demonstration script for training visualizations
 demo_raw_signal.py  # Demonstration script for raw signal visualization
 ```
 
