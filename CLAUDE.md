@@ -10,7 +10,7 @@ Total Perspective Vortex is an EEG Brain-Computer Interface (BCI) system for mot
 
 ### Testing
 ```bash
-# Run all tests (148 tests total)
+# Run all tests (270 tests total)
 uv run pytest tests/ -v
 
 # Run specific test file
@@ -59,9 +59,13 @@ Available pipelines (defined in [pipeline.py](src/pipeline.py)):
 - `csp_lda` - CSP + LDA (recommended, best for motor imagery)
 - `csp_svm` - CSP + SVM
 - `csp_lr` - CSP + Logistic Regression
+- `csp_rf` - CSP + Random Forest
 - `psd_lda` - Power Spectral Density + LDA
 - `bandpower_lda` - Band Power features + LDA
 - `flat_pca_lda` - Flattened raw signal + PCA + LDA
+- `wavelet_lda` - Wavelet (CWT Morlet) features + LDA
+- `wavelet_custom` - Wavelet + PCA + MyNearestCentroid
+- `csp_custom` - CSP + MyNearestCentroid
 
 ### Module Organization
 
@@ -70,7 +74,8 @@ The codebase is organized into domain-specific submodules:
 **Core modules** (in `src/`):
 - `mybci.py` - Main CLI entry point with argument parsing
 - `preprocess.py` - EEG data loading and bandpass filtering (7-30Hz)
-- `features.py` - Feature extractors (PSD, BandPower, Flatten)
+- `features.py` - Feature extractors (PSD, BandPower, Flatten, Wavelet)
+- `display.py` - Centralized terminal output functions
 - `constants.py` - Centralized configuration and magic numbers
 - `pipeline.py` - Pipeline construction and registration
 
@@ -78,6 +83,8 @@ The codebase is organized into domain-specific submodules:
 - `transforms/` - Custom sklearn transformers
   - `csp.py` - MyCSP implementation (solves generalized eigenvalue problem)
   - `pca.py` - MyPCA implementation
+- `classifiers/` - Custom sklearn classifiers
+  - `nearest_centroid.py` - MyNearestCentroid implementation
 - `training/` - Training workflow components
   - `core.py` - Cross-validation and holdout evaluation
   - `subject.py` - Subject-specific training logic
@@ -89,9 +96,10 @@ The codebase is organized into domain-specific submodules:
   - `comparison_plots.py` - Pipeline comparison charts
 
 **Tests** mirror the src structure:
-- `tests/transforms/` - Tests for CSP and PCA
+- `tests/transforms/` - Tests for CSP, PCA, and linalg
 - `tests/features/` - Tests for feature extractors
 - `tests/pipeline/` - Tests for pipeline construction
+- `tests/classifiers/` - Tests for custom classifiers
 - `conftest.py` - Pytest fixtures with synthetic EEG data generators
 
 ### Common Spatial Patterns (CSP)
