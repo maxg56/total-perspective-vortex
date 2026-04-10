@@ -6,8 +6,8 @@ EEG Brain-Computer Interface (BCI) system for motor imagery classification using
 
 This project implements a complete BCI pipeline:
 1. **Preprocessing**: Load and filter EEG data from Physionet
-2. **Feature Extraction**: PSD, band power, or CSP features
-3. **Classification**: LDA, SVM, or Logistic Regression
+2. **Feature Extraction**: PSD, band power, CSP, or wavelet features
+3. **Classification**: LDA, SVM, Logistic Regression, Random Forest, or Nearest Centroid
 4. **Real-time Prediction**: Simulate streaming EEG classification
 
 ## Methodological Choices
@@ -28,7 +28,7 @@ The CSP algorithm (implemented in [transforms/csp.py](src/transforms/csp.py)) se
 
 ### Log-Variance Feature Extraction
 
-CSP features are computed as the **log-variance of spatially filtered signals** ([transforms/csp.py:187-189](src/transforms/csp.py)). The logarithm transforms the multiplicative variance structure into an additive one, making the feature distribution approximately Gaussian—a critical assumption for optimal Linear Discriminant Analysis performance.
+CSP features are computed as the **log-variance of spatially filtered signals** ([transforms/csp.py](src/transforms/csp.py)). The logarithm transforms the multiplicative variance structure into an additive one, making the feature distribution approximately Gaussian—a critical assumption for optimal Linear Discriminant Analysis performance.
 
 **Oral explanation**: *Log-variance transformation normalizes CSP feature distributions to be approximately Gaussian. This mathematical property directly aligns with LDA's assumption of normally distributed features, maximizing classifier performance.*
 
@@ -76,65 +76,48 @@ uv run python mybci.py 4 14 predict
 ### Options
 
 ```
---pipeline, -p     Pipeline to use (csp_lda, csp_svm, csp_lr, psd_lda, bandpower_lda, flat_pca_lda)
+--pipeline, -p     Pipeline to use (see available pipelines below)
 --cv               Number of cross-validation folds (default: 5)
 --compare          Compare all pipelines and use the best
---n-components     Number of CSP components (default: 6)
+--n-components     Number of CSP/PCA components (default: 6)
 --model-dir        Directory for saved models (default: models)
 ```
 
+### Available Pipelines
+
+| Name | Description |
+|------|-------------|
+| `csp_lda` | CSP + LDA (recommended, best for motor imagery) |
+| `csp_svm` | CSP + SVM |
+| `csp_lr` | CSP + Logistic Regression |
+| `csp_rf` | CSP + Random Forest |
+| `psd_lda` | Power Spectral Density features + LDA |
+| `bandpower_lda` | Band power features + LDA |
+| `flat_pca_lda` | Flattened raw signal + PCA + LDA |
+| `wavelet_lda` | Wavelet (CWT Morlet) features + LDA |
+| `wavelet_custom` | Wavelet + PCA + MyNearestCentroid |
+| `csp_custom` | CSP + MyNearestCentroid |
+
 ### Visualization
 
-#### Raw Signal Visualization
-
-Visualize raw and filtered EEG signals with power spectral density analysis:
+Training and prediction commands support optional plot generation:
 
 ```bash
-# Display raw and filtered EEG signals with PSD
-uv run python demo_raw_signal.py [subject] [run]
+# Save plots to disk during training
+cd src
+uv run python mybci.py 4 14 train --save-plots
 
-# Example: Subject 4, Run 14
-uv run python demo_raw_signal.py 4 14
+# Compare all pipelines with plots
+uv run python mybci.py 4 14 train --compare --save-plots
 ```
-
-This demonstration script shows:
-- **Raw EEG signal traces**: Unfiltered signal from all channels
-- **Filtered signal traces**: 7-30 Hz bandpass filtered signal (mu and beta rhythms)
-- **Power Spectral Density (PSD)**: Comparison of raw vs filtered signals in the 7-30 Hz range
-- **Topographic PSD maps**: Spatial distribution of power across frequency bands
-
-This is particularly useful for:
-- Understanding the preprocessing pipeline
-- Validating bandpass filtering (7-30 Hz for motor imagery)
-- Demonstrating signal quality for presentations and defenses
-- Analyzing frequency band characteristics (mu: 8-12 Hz, beta: 12-30 Hz)
-
-#### Training Performance Visualization
-
 
 Available visualizations:
 - **Cross-validation scores**: Bar chart showing accuracy for each CV fold
 - **Confusion matrix**: Heatmap of prediction results on test set
 - **Training summary**: Comprehensive 3-panel view with CV scores, confusion matrix, and per-class accuracy
-- **Pipeline comparison**: Compare performance of different models (when using --compare)
+- **Pipeline comparison**: Compare performance of different models (when using `--compare`)
 
-Programmatic usage:
-
-```python
-from src.train import train_with_holdout
-from src.preprocess import preprocess_subject
-
-# Load data
-X, y, epochs = preprocess_subject(subject=4, runs=[14])
-
-# Train with visualizations
-pipeline, cv_scores, test_acc = train_with_holdout(
-    X, y,
-    pipeline_name='csp_lda',
-    plot=True,        # Enable plotting
-    save_plots=True   # Save plots to disk
-)
-```
+Plots are saved to the `plots/` directory.
 
 ## Run Types
 
@@ -149,32 +132,36 @@ pipeline, cv_scores, test_acc = train_with_holdout(
 
 ```
 src/
-├── mybci.py          # Main CLI entry point
-├── preprocess.py     # Data loading and filtering
-├── features.py       # Feature extraction (PSD, band power)
-├── mycsp.py          # Custom CSP implementation
-├── pipeline.py       # sklearn pipeline construction
-├── train.py          # Training and cross-validation
-├── predict.py        # Real-time prediction simulation
-└── visualization.py  # Plotting functions for results
+├── mybci.py              # Main CLI entry point
+├── preprocess.py         # Data loading and bandpass filtering (7-30 Hz)
+├── features.py           # Feature extractors (PSD, BandPower, Flatten, Wavelet)
+├── display.py            # Centralized terminal output
+├── pipeline.py           # Pipeline construction and registration
+├── predict.py            # Real-time prediction simulation
+├── constants.py          # Centralized configuration and magic numbers
+├── transforms/
+│   ├── csp.py            # MyCSP (solves generalized eigenvalue problem)
+│   ├── pca.py            # MyPCA implementation
+│   └── linalg.py         # Custom linear algebra (Jacobi eigendecomposition)
+├── classifiers/
+│   └── nearest_centroid.py  # MyNearestCentroid classifier
+├── training/
+│   ├── core.py           # Cross-validation and holdout evaluation
+│   ├── subject.py        # Subject-specific training logic
+│   ├── comparison.py     # Multi-pipeline comparison
+│   └── persistence.py    # Model saving/loading with joblib
+└── visualization/
+    ├── cv_plots.py        # Cross-validation score plots
+    ├── metrics_plots.py   # Confusion matrices and classification reports
+    └── comparison_plots.py  # Pipeline comparison charts
 
-tests/
-├── conftest.py         # Pytest fixtures and synthetic data generators
-├── test_preprocess.py  # Tests for EEG preprocessing
-├── test_features.py    # Tests for feature extractors
-├── test_mycsp.py       # Tests for CSP and PCA implementations
-├── test_pipeline.py    # Tests for pipeline construction
-├── test_train.py       # Tests for training and model persistence
-└── test_predict.py     # Tests for prediction functions
-
-models/             # Saved models directory
+models/             # Saved models (model_s{subject}_r{run}_{pipeline}.pkl)
 plots/              # Generated visualization plots
-demo_raw_signal.py  # Demonstration script for raw signal visualization
 ```
 
 ## Testing
 
-The project includes a comprehensive test suite with 148 tests using pytest.
+The project includes a comprehensive test suite with 270 tests using pytest.
 
 ### Running Tests
 
@@ -183,7 +170,7 @@ The project includes a comprehensive test suite with 148 tests using pytest.
 uv run pytest tests/ -v
 
 # Run specific test file
-uv run pytest tests/test_mycsp.py -v
+uv run pytest tests/transforms/test_csp.py -v
 
 # Run with coverage
 uv run pytest tests/ --cov=src --cov-report=html
@@ -191,14 +178,16 @@ uv run pytest tests/ --cov=src --cov-report=html
 
 ### Test Coverage
 
-| Module | Tests | Description |
-|--------|-------|-------------|
-| `test_preprocess.py` | 11 | Run type identification, event IDs, parameter validation |
-| `test_features.py` | 29 | PSD, BandPower, LogVariance, Flatten extractors |
-| `test_mycsp.py` | 31 | CSP fitting, transform, covariance computation, PCA |
-| `test_pipeline.py` | 26 | All 6 pipeline configurations, sklearn compatibility |
-| `test_train.py` | 24 | Cross-validation, holdout training, model save/load |
-| `test_predict.py` | 27 | Single/batch prediction, real-time simulation |
+| Test directory / file | Description |
+|-----------------------|-------------|
+| `test_preprocess.py` | Run type identification, event IDs, parameter validation |
+| `features/` | PSD, BandPower, LogVariance, Flatten, Wavelet extractors |
+| `transforms/` | CSP fitting/transform, PCA, linalg (Jacobi), sklearn compat |
+| `pipeline/` | All 10 pipeline configurations, factory, integration |
+| `classifiers/` | MyNearestCentroid fit/predict/sklearn compat |
+| `test_train.py` | Cross-validation, holdout training, model save/load |
+| `test_predict.py` | Single/batch prediction, real-time simulation |
+| `test_display.py` | All terminal output functions |
 
 ### Synthetic Data
 
@@ -207,41 +196,30 @@ Tests use synthetic EEG data to avoid downloading from Physionet during testing.
 - Configurable dimensions (epochs, channels, time points)
 - Pre-trained pipelines for prediction tests
 
-## Custom CSP Implementation
+## Custom Implementations
 
-The `mycsp.py` module contains a custom implementation of Common Spatial Patterns (CSP) as an sklearn transformer:
+### Common Spatial Patterns (CSP)
 
+[transforms/csp.py](src/transforms/csp.py) implements CSP as an sklearn transformer:
 - Computes class-specific covariance matrices
-- Solves generalized eigenvalue problem
-- Selects most discriminative spatial filters
+- Solves the generalized eigenvalue problem `Σ₁W = (Σ₁ + Σ₂)WΛ`
+- Selects `n_components/2` filters from each end of the eigenvalue spectrum
 - Returns log-variance features for classification
+
+### Principal Component Analysis (PCA)
+
+[transforms/pca.py](src/transforms/pca.py) implements PCA from scratch using the custom Jacobi eigendecomposition from [transforms/linalg.py](src/transforms/linalg.py).
+
+### Nearest Centroid Classifier
+
+[classifiers/nearest_centroid.py](src/classifiers/nearest_centroid.py) implements a nearest centroid classifier with optional shrinkage threshold, used in `wavelet_custom` and `csp_custom` pipelines.
 
 ## Target Performance
 
 - **Minimum accuracy**: 60% on test data
 - **Prediction time**: < 2 seconds per epoch
 
-## Experimental Validation
-
-To prove that the system achieves the ≥60% accuracy threshold across multiple subjects (required for Issue #14), use the provided automated experimental validation script:
-
-### Quick Start
-
-```bash
-# Run all required experiments automatically
-bash run_experiments.sh
-```
-
-This script will:
-1. Train models for subjects 1, 4, and 10 with 5-fold cross-validation
-2. Evaluate on holdout test sets
-3. Measure prediction times
-4. Generate comprehensive results and plots
-5. Validate that the ≥60% accuracy target is met
-
-### Manual Validation
-
-If you prefer to run experiments individually:
+## Manual Validation
 
 ```bash
 # Subject 1, Run 6 (hands vs feet motor imagery)
@@ -257,21 +235,6 @@ uv run python mybci.py 4 14 predict
 uv run python mybci.py 10 6 train --cv 5
 uv run python mybci.py 10 6 predict
 ```
-
-### Results Documentation
-
-After running experiments, results are documented in:
-- **EXPERIMENTAL_RESULTS.md**: Complete experimental results and analysis
-- **results/**: Log files with detailed metrics
-- **plots/**: Visualizations (confusion matrices, CV scores, etc.)
-- **models/**: Trained model files
-
-See [EXPERIMENTAL_RESULTS.md](EXPERIMENTAL_RESULTS.md) for detailed information about:
-- Experimental protocol
-- Per-subject results (CV accuracy, test accuracy, prediction times)
-- Aggregate statistics
-- Target achievement validation
-- Troubleshooting network/environment issues
 
 ## Development
 
@@ -291,9 +254,7 @@ uv run pre-commit install
 
 ### Code Quality Tools
 
-This project uses several tools to maintain code quality:
-
-- **flake8**: Style guide enforcement (PEP 8)
+- **flake8**: Style guide enforcement (PEP 8, max line length 100)
 - **mypy**: Static type checking
 - **pre-commit**: Automatic checks before commits
 
