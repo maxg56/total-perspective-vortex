@@ -58,7 +58,11 @@ def load_model(path: str) -> Tuple[Pipeline, Dict[str, Any]]:
     metadata : dict
         Metadata saved with the model
     """
-    # Use joblib for loading
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Model file not found: {path}")
+
+    # WARNING: joblib.load() can execute arbitrary code if the .pkl file is untrusted.
+    # Only load models from trusted, local sources.
     model_data = joblib.load(path)
 
     return model_data['pipeline'], model_data['metadata']
