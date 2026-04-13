@@ -169,8 +169,9 @@ def mode_train(args: argparse.Namespace) -> int:
     )
 
     exp_idx = RUN_TO_EXPERIMENT.get(args.run)
-    exp_target = EXPERIMENT_TARGETS.get(exp_idx, TARGET_ACCURACY) if exp_idx is not None \
-        else TARGET_ACCURACY
+    exp_target = (
+        EXPERIMENT_TARGETS.get(exp_idx, TARGET_ACCURACY) if exp_idx is not None else TARGET_ACCURACY
+    )
     display.print_training_summary(scores, exp_idx, exp_target)
 
     return 0
@@ -188,8 +189,9 @@ def mode_predict(args: argparse.Namespace) -> int:
     )
 
     exp_idx = RUN_TO_EXPERIMENT.get(args.run)
-    exp_target = EXPERIMENT_TARGETS.get(exp_idx, TARGET_ACCURACY) if exp_idx is not None \
-        else TARGET_ACCURACY
+    exp_target = (
+        EXPERIMENT_TARGETS.get(exp_idx, TARGET_ACCURACY) if exp_idx is not None else TARGET_ACCURACY
+    )
     display.print_prediction_summary(results, exp_idx, exp_target)
 
     return 0

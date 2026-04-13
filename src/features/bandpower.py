@@ -60,7 +60,7 @@ class BandPowerExtractor(BaseEstimator, TransformerMixin):
         n_bands = len(self.freq_bands)
         features = np.zeros((n_epochs, n_channels * n_bands))
 
-        for band_idx, (band_name, (low, high)) in enumerate(self.freq_bands.items()):
+        for band_idx, (_, (low, high)) in enumerate(self.freq_bands.items()):
             nyq = self.fs / 2
             low_norm = low / nyq
             high_norm = high / nyq
