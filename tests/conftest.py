@@ -67,8 +67,6 @@ def synthetic_eeg_data(random_seed, n_epochs, n_channels, n_times):
     y : np.ndarray
         Labels of shape (n_epochs,) with values 1 and 2 (matching Physionet)
     """
-    np.random.seed(RANDOM_STATE)
-
     # Generate base noise
     X = np.random.randn(n_epochs, n_channels, n_times).astype(np.float64)
 
@@ -102,10 +100,8 @@ def synthetic_eeg_3class(random_seed, n_epochs, n_channels, n_times):
     y : np.ndarray
         Labels with 3 classes
     """
-    np.random.seed(RANDOM_STATE)
-
     n_per_class = n_epochs // 3
-    X = np.random.randn(n_per_class * 3, n_channels, n_times)
+    X = np.random.randn(n_per_class * 3, n_channels, n_times).astype(np.float64)
     y = np.array([1] * n_per_class + [2] * n_per_class + [3] * n_per_class)
 
     return X, y

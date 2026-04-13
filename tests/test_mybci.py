@@ -180,7 +180,7 @@ class TestModeTrain:
         with patch('mybci.preprocess_subject', return_value=(X, y, MagicMock())), \
              patch('mybci.compare_pipelines', return_value=compare_results), \
              patch('mybci.display.print_data_info'), \
-             patch('mybci.train_subject', return_value=(MagicMock(), mock_scores)) as mock_train, \
+             patch('mybci.train_subject', return_value=(MagicMock(), mock_scores)), \
              patch('mybci.display.print_training_summary'):
             mode_train(args)
 
@@ -199,7 +199,13 @@ class TestModePredict:
             model_path=None, model_dir='models', quiet=False
         )
 
-        with patch('mybci.run_prediction', return_value={'accuracy': 0.8}), \
+        prediction_result = {
+            'accuracy': 0.8,
+            'avg_time': 0.1,
+            'max_time': 0.2,
+            'within_time_limit': True,
+        }
+        with patch('mybci.run_prediction', return_value=prediction_result), \
              patch('mybci.display.print_prediction_summary'):
             result = mode_predict(args)
 

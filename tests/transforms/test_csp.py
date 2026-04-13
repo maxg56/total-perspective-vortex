@@ -179,6 +179,28 @@ class TestMyCSPTransform:
         row_sums = X_csp.sum(axis=1)
         np.testing.assert_array_almost_equal(row_sums, np.ones(len(X_csp)))
 
+    def test_transform_degenerate_zero_variance_epoch(self, synthetic_eeg_data):
+        """Test that a constant (zero-variance) epoch does not crash and row sum != 1."""
+        from transforms import MyCSP
+
+        X, y = synthetic_eeg_data
+        csp = MyCSP(n_components=4, log=False)
+        csp.fit(X, y)
+
+        # Replace the first epoch with a constant signal (zero variance)
+        X_degen = X.copy()
+        X_degen[0] = 0.0
+
+        X_csp = csp.transform(X_degen)
+
+        # The degenerate epoch should not produce NaN or Inf
+        assert np.isfinite(X_csp[0]).all(), "Degenerate epoch produced NaN or Inf"
+
+        # Its row sum must NOT be 1 (zero total variance means normalization is undefined)
+        assert not np.isclose(X_csp[0].sum(), 1.0), (
+            "Degenerate zero-variance epoch should not normalize to sum=1"
+        )
+
 
 class TestMyCSPFitTransform:
     """Tests for MyCSP.fit_transform method."""
