@@ -176,18 +176,6 @@ uv run pytest tests/transforms/test_csp.py -v
 uv run pytest tests/ --cov=src --cov-report=html
 ```
 
-### Test Coverage
-
-| Test directory / file | Description |
-|-----------------------|-------------|
-| `test_preprocess.py` | Run type identification, event IDs, parameter validation |
-| `features/` | PSD, BandPower, LogVariance, Flatten, Wavelet extractors |
-| `transforms/` | CSP fitting/transform, PCA, linalg (Jacobi), sklearn compat |
-| `pipeline/` | All 10 pipeline configurations, factory, integration |
-| `classifiers/` | MyNearestCentroid fit/predict/sklearn compat |
-| `test_train.py` | Cross-validation, holdout training, model save/load |
-| `test_predict.py` | Single/batch prediction, real-time simulation |
-| `test_display.py` | All terminal output functions |
 
 ### Synthetic Data
 
