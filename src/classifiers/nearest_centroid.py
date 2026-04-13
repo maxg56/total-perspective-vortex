@@ -63,8 +63,10 @@ class MyNearestCentroid(BaseEstimator, ClassifierMixin):
             The fitted classifier
         """
         self.classes_ = np.unique(y)
+        if len(self.classes_) < 2:
+            raise ValueError(
+                f"At least 2 classes required, got {len(self.classes_)}")
         n_classes = len(self.classes_)
-        n_features = X.shape[1]
 
         # Compute overall centroid
         self.overall_centroid_ = np.mean(X, axis=0)
@@ -110,7 +112,8 @@ class MyNearestCentroid(BaseEstimator, ClassifierMixin):
             raise RuntimeError(
                 "Classifier not fitted. Call fit() first.")
 
-        # distances: (n_samples, n_classes)
+        # Broadcast: (n_samples, 1, n_features) - (1, n_classes, n_features)
+        # → distances shape: (n_samples, n_classes)
         distances = np.linalg.norm(
             X[:, None, :] - self.centroids_[None, :, :], axis=2
         )
@@ -133,5 +136,8 @@ class MyNearestCentroid(BaseEstimator, ClassifierMixin):
         accuracy : float
             Fraction of correctly classified samples
         """
+        if not hasattr(self, 'centroids_'):
+            raise RuntimeError(
+                "Classifier not fitted. Call fit() first.")
         predictions = self.predict(X)
         return float(np.mean(predictions == y))

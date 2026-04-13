@@ -4,7 +4,7 @@ Custom PCA (Principal Component Analysis) implementation.
 An alternative dimensionality reduction method for EEG data.
 """
 
-from typing import Optional, cast
+from typing import Optional
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -117,4 +117,5 @@ class MyPCA(BaseEstimator, TransformerMixin):
             Transformed data of shape (n_samples, n_components)
         """
         X_centered = X - self.mean_
-        return cast(np.ndarray, np.dot(X_centered, self.components_).astype(np.float64))
+        result: np.ndarray = np.dot(X_centered, self.components_).astype(np.float64)
+        return result
