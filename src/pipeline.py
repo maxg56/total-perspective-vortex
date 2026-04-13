@@ -7,7 +7,9 @@ Builds sklearn pipelines combining:
 - Classification (LDA, SVM, etc.)
 """
 
-from typing import Optional
+import inspect
+import logging
+from typing import Callable, Dict, Optional
 from sklearn.pipeline import Pipeline
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.svm import SVC
@@ -324,7 +326,7 @@ def get_pipeline(pipeline_name: str = 'csp_lda', **kwargs) -> Pipeline:
     -------
     pipeline : Pipeline
     """
-    pipelines = {
+    pipelines: Dict[str, Callable[..., Pipeline]] = {
         'csp_lda': build_csp_lda_pipeline,
         'csp_svm': build_csp_svm_pipeline,
         'csp_lr': build_csp_lr_pipeline,
@@ -342,7 +344,13 @@ def get_pipeline(pipeline_name: str = 'csp_lda', **kwargs) -> Pipeline:
                          f"Available: {list(pipelines.keys())}")
 
     builder = pipelines[pipeline_name]
-    return builder(**kwargs)  # type: ignore[operator]
+    valid_params = set(inspect.signature(builder).parameters)
+    ignored = {k for k in kwargs if k not in valid_params}
+    if ignored:
+        logging.warning(
+            "get_pipeline(%r): ignoring unknown kwargs %s", pipeline_name, sorted(ignored)
+        )
+    return builder(**{k: v for k, v in kwargs.items() if k in valid_params})
 
 
 def list_pipelines() -> list:

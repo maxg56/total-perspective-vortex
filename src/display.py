@@ -21,6 +21,11 @@ def section(title: str) -> None:
     print(SEP)
 
 
+def step(message: str) -> None:
+    """Print a single-line status step."""
+    print(f"\n{message}")
+
+
 def print_header(subject: int, run: int, mode: str, pipeline: str, run_type: str) -> None:
     """Print the main program header."""
     print(f"\n{SEP}")
