@@ -69,20 +69,11 @@ class MyNearestCentroid(BaseEstimator, ClassifierMixin):
         # Compute overall centroid
         self.overall_centroid_ = np.mean(X, axis=0)
 
-        # Compute per-class centroids from scratch
-        self.centroids_ = np.zeros((n_classes, n_features),
-                                   dtype=np.float64)
-        for i, cls in enumerate(self.classes_):
-            mask = (y == cls)
-            n_samples_cls: int = int(np.sum(mask))
-            # Manual mean computation
-            centroid = np.zeros(n_features, dtype=np.float64)
-            for j in range(X.shape[0]):
-                if mask[j]:
-                    for k in range(n_features):
-                        centroid[k] += X[j, k]
-            centroid /= n_samples_cls
-            self.centroids_[i] = centroid
+        # Compute per-class centroids
+        self.centroids_ = np.array(
+            [X[y == cls].mean(axis=0) for cls in self.classes_],
+            dtype=np.float64,
+        )
 
         # Apply shrinkage regularization if threshold is set
         if self.shrink_threshold is not None:
@@ -119,28 +110,11 @@ class MyNearestCentroid(BaseEstimator, ClassifierMixin):
             raise RuntimeError(
                 "Classifier not fitted. Call fit() first.")
 
-        n_samples = X.shape[0]
-        predictions = np.zeros(n_samples, dtype=self.classes_.dtype)
-
-        for i in range(n_samples):
-            # Compute Euclidean distance to each centroid
-            min_dist = np.inf
-            best_class = self.classes_[0]
-            for j, cls in enumerate(self.classes_):
-                # Manual distance computation
-                dist = 0.0
-                for k in range(X.shape[1]):
-                    diff = X[i, k] - self.centroids_[j, k]
-                    dist += diff * diff
-                dist = np.sqrt(dist)
-
-                if dist < min_dist:
-                    min_dist = dist
-                    best_class = cls
-
-            predictions[i] = best_class
-
-        return predictions
+        # distances: (n_samples, n_classes)
+        distances = np.linalg.norm(
+            X[:, None, :] - self.centroids_[None, :, :], axis=2
+        )
+        return self.classes_[np.argmin(distances, axis=1)]
 
     def score(self, X: NDArray[np.float64],
               y: NDArray[np.int64]) -> float:
