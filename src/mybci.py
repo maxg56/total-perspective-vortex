@@ -31,12 +31,15 @@ import os
 import sys
 import argparse
 import logging
+import traceback
 
-# Add src directory to path for imports
+# Add src directory to path for imports.
+# NOTE: must be invoked from the src/ directory (or via an absolute path)
+# because relative paths for models/, plots/, and data/ are resolved from cwd.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from constants import (MIN_SUBJECT, MAX_SUBJECT, VALID_RUNS,  # noqa: E402
-                       EXPERIMENT_TARGETS, RUN_TO_EXPERIMENT)
+                       EXPERIMENT_TARGETS, RUN_TO_EXPERIMENT, TARGET_ACCURACY)
 from training import train_subject, compare_pipelines  # noqa: E402
 from predict import run_prediction  # noqa: E402
 from preprocess import preprocess_subject, get_run_type  # noqa: E402
@@ -166,7 +169,8 @@ def mode_train(args: argparse.Namespace) -> int:
     )
 
     exp_idx = RUN_TO_EXPERIMENT.get(args.run)
-    exp_target = EXPERIMENT_TARGETS.get(exp_idx, 0.60) if exp_idx is not None else 0.60
+    exp_target = EXPERIMENT_TARGETS.get(exp_idx, TARGET_ACCURACY) if exp_idx is not None \
+        else TARGET_ACCURACY
     display.print_training_summary(scores, exp_idx, exp_target)
 
     return 0
@@ -184,7 +188,8 @@ def mode_predict(args: argparse.Namespace) -> int:
     )
 
     exp_idx = RUN_TO_EXPERIMENT.get(args.run)
-    exp_target = EXPERIMENT_TARGETS.get(exp_idx, 0.60) if exp_idx is not None else 0.60
+    exp_target = EXPERIMENT_TARGETS.get(exp_idx, TARGET_ACCURACY) if exp_idx is not None \
+        else TARGET_ACCURACY
     display.print_prediction_summary(results, exp_idx, exp_target)
 
     return 0
@@ -214,7 +219,6 @@ def main() -> int:
     except Exception as e:
         logger.exception(f"Unexpected error: {e}")
         print(f"\nError: {e}")
-        import traceback
         traceback.print_exc()
         return 1
 
