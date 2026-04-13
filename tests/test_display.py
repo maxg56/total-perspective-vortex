@@ -6,7 +6,6 @@ format, and branching logic (target achieved vs. not, time limit, etc.).
 """
 
 import numpy as np
-import pytest
 
 
 class TestSection:

@@ -198,8 +198,7 @@ def my_eigh(A: NDArray[np.float64],
             max_iter: int = 200) -> Tuple[NDArray[np.float64],
                                           NDArray[np.float64]]:
     """
-    Compute eigenvalues and eigenvectors of a symmetric matrix
-    using the Jacobi eigenvalue algorithm.
+    Compute eigenvalues and eigenvectors of a symmetric matrix using the Jacobi algorithm.
 
     The Jacobi method iteratively applies Givens rotations to
     diagonalize the matrix. Each rotation zeros out an off-diagonal
