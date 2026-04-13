@@ -7,7 +7,7 @@ Handles:
 - Epoch extraction around motor events
 """
 
-import os
+import logging
 from typing import List, Tuple, Optional, Dict
 import numpy as np
 from numpy.typing import NDArray
@@ -34,10 +34,7 @@ EVENT_ID_LEFT_RIGHT = {
     'T2': 2,  # right fist
 }
 
-
-def get_data_path() -> str:
-    """Get the path where MNE stores downloaded data."""
-    return os.path.join(mne.get_config('MNE_DATA', default='~/mne_data'), 'MNE-eegbci-data')
+logger = logging.getLogger(__name__)
 
 
 def load_raw_data(subject: int, runs: List[int]) -> mne.io.Raw:
@@ -158,9 +155,9 @@ def get_run_type(run: int) -> str:
     """
     if run in [1, 2]:
         return 'baseline'
-    elif run in [3, 7, 11, 4, 8, 12]:
+    elif run in [3, 4, 7, 8, 11, 12]:
         return 'left_right'
-    elif run in [5, 9, 13, 6, 10, 14]:
+    elif run in [5, 6, 9, 10, 13, 14]:
         return 'hands_feet'
     else:
         raise ValueError(f"Invalid run number: {run}")
@@ -220,8 +217,8 @@ def preprocess_subject(
     epochs = extract_epochs(raw, event_id=event_id, tmin=tmin, tmax=tmax)
 
     # Get data and labels
-    X = epochs.get_data()  # (n_epochs, n_channels, n_times)
-    y = epochs.events[:, -1]  # Labels from event codes
+    X = epochs.get_data().astype(np.float64)  # (n_epochs, n_channels, n_times)
+    y = epochs.events[:, -1].astype(np.int64)  # Labels from event codes
 
     return X, y, epochs
 
@@ -264,9 +261,9 @@ def load_multiple_subjects(
             X, y, _ = preprocess_subject(subject, runs, l_freq, h_freq, tmin, tmax)
             X_all.append(X)
             y_all.append(y)
-            print(f"Subject {subject}: {len(y)} epochs loaded")
-        except Exception as e:
-            print(f"Error loading subject {subject}: {e}")
+            logger.info(f"Subject {subject}: {len(y)} epochs loaded")
+        except (OSError, ValueError, RuntimeError) as e:
+            logger.warning(f"Error loading subject {subject}: {e}")
             continue
 
     if not X_all:
@@ -288,4 +285,5 @@ if __name__ == "__main__":
     print(f"Data shape: {X.shape}")
     print(f"Labels shape: {y.shape}")
     print(f"Unique labels: {np.unique(y)}")
-    print(f"Class distribution: {np.bincount(y)[1:]}")
+    labels, counts = np.unique(y, return_counts=True)
+    print(f"Class distribution: {dict(zip(labels, counts))}")
