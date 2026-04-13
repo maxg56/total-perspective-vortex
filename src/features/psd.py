@@ -76,7 +76,7 @@ class PSDExtractor(BaseEstimator, TransformerMixin):
             axis=-1
         )
 
-        for band_idx, (band_name, (low, high)) in enumerate(self.freq_bands.items()):
+        for band_idx, (_, (low, high)) in enumerate(self.freq_bands.items()):
             idx_band = np.logical_and(freqs >= low, freqs <= high)
             # Mean over freq bins -> (n_epochs, n_channels)
             band_power = psd[:, :, idx_band].mean(axis=-1)
