@@ -84,7 +84,7 @@ def compare_pipelines(
         display.print_best_pipeline(best[0], best[1]['mean'])
 
     # Plot results
-    if plot and valid_results:
+    if plot:
         # Bar plot comparison
         comp_save = "plots/pipeline_comparison.png" if save_plots else None
         plot_pipeline_comparison(valid_results, save_path=comp_save)
