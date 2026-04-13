@@ -56,7 +56,7 @@ def train_subject(subject: int, runs: List[int],
         f"Training BCI model — Subject: {subject}, Runs: {runs}, Pipeline: {pipeline_name}"
     )
 
-    print("\nLoading and preprocessing data...")
+    display.step("Loading and preprocessing data...")
     X, y, epochs = preprocess_subject(subject, runs)
     display.print_data_info(X, y)
 
@@ -68,7 +68,8 @@ def train_subject(subject: int, runs: List[int],
 
     # Save model
     run_type = get_run_type(runs[0])
-    model_path = os.path.join(model_dir, f"model_s{subject}_r{runs[0]}_{pipeline_name}.pkl")
+    runs_str = "-".join(str(r) for r in runs)
+    model_path = os.path.join(model_dir, f"model_s{subject}_r{runs_str}_{pipeline_name}.pkl")
 
     metadata = {
         'subject': subject,
