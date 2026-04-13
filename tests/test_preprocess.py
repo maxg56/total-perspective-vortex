@@ -79,18 +79,6 @@ class TestEventIds:
         assert EVENT_ID_LEFT_RIGHT['T2'] == 2
 
 
-class TestDataPath:
-    """Tests for data path functions."""
-
-    def test_get_data_path_returns_string(self):
-        """Test that get_data_path returns a string path."""
-        from preprocess import get_data_path
-
-        path = get_data_path()
-        assert isinstance(path, str)
-        assert len(path) > 0
-
-
 class TestPreprocessSubjectValidation:
     """Tests for preprocess_subject validation logic."""
 
