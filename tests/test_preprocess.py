@@ -119,6 +119,19 @@ class TestPreprocessSubjectValidation:
             preprocess_subject(1, [1])
 
 
+class TestLoadMultipleSubjects:
+    """Tests for load_multiple_subjects function."""
+
+    def test_all_subjects_fail_raises_error(self, mocker):
+        """Test that ValueError is raised when every subject fails to load."""
+        from preprocess import load_multiple_subjects
+
+        mocker.patch('preprocess.preprocess_subject', side_effect=RuntimeError("network error"))
+
+        with pytest.raises(ValueError, match="Failed to load any subjects"):
+            load_multiple_subjects([1, 2, 3], [6])
+
+
 class TestFilterRawParameters:
     """Tests for filter_raw function parameters."""
 

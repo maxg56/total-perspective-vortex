@@ -57,6 +57,8 @@ class MyCSP(BaseEstimator, TransformerMixin):
 
     def __init__(self, n_components: int = 4, reg: Optional[float] = None,
                  log: bool = True, norm_trace: bool = True) -> None:
+        if reg is not None and reg < 0:
+            raise ValueError(f"reg must be non-negative, got {reg}")
         self.n_components = n_components
         self.reg = reg
         self.log = log
@@ -181,9 +183,9 @@ class MyCSP(BaseEstimator, TransformerMixin):
 
         if self.log:
             # Log-transform (common for CSP features)
-            return np.log(variances + EPSILON)
+            return np.log(variances + EPSILON).astype(np.float64)
         else:
-            return variances
+            return variances.astype(np.float64)
 
     def fit_transform(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
         """

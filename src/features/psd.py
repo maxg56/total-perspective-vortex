@@ -67,16 +67,20 @@ class PSDExtractor(BaseEstimator, TransformerMixin):
         n_bands = len(self.freq_bands)
         features = np.zeros((n_epochs, n_channels * n_bands))
 
-        for epoch_idx in range(n_epochs):
-            for ch_idx in range(n_channels):
-                freqs, psd = signal.welch(X[epoch_idx, ch_idx, :],
-                                          fs=self.fs,
-                                          nperseg=min(self.nperseg, n_times),
-                                          noverlap=min(self.noverlap, n_times // 2))
+        # Compute Welch PSD for all epochs and channels at once (axis=-1)
+        # freqs: (n_freqs,), psd: (n_epochs, n_channels, n_freqs)
+        freqs, psd = signal.welch(
+            X, fs=self.fs,
+            nperseg=min(self.nperseg, n_times),
+            noverlap=min(self.noverlap, n_times // 2),
+            axis=-1
+        )
 
-                for band_idx, (band_name, (low, high)) in enumerate(self.freq_bands.items()):
-                    idx_band = np.logical_and(freqs >= low, freqs <= high)
-                    band_power = np.mean(psd[idx_band])
-                    features[epoch_idx, ch_idx * n_bands + band_idx] = band_power
+        for band_idx, (band_name, (low, high)) in enumerate(self.freq_bands.items()):
+            idx_band = np.logical_and(freqs >= low, freqs <= high)
+            # Mean over freq bins -> (n_epochs, n_channels)
+            band_power = psd[:, :, idx_band].mean(axis=-1)
+            # Layout: features[:, ch * n_bands + band_idx] for all ch
+            features[:, band_idx::n_bands] = band_power
 
         return features

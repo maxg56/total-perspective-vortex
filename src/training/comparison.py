@@ -77,6 +77,8 @@ def compare_pipelines(
             results[name] = None
 
     valid_results = {k: v for k, v in results.items() if v is not None}
+    if not valid_results:
+        raise RuntimeError("All pipelines failed during comparison")
     if valid_results:
         best = max(valid_results.items(), key=lambda x: x[1]['mean'])
         if verbose:

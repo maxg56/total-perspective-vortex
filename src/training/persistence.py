@@ -40,7 +40,6 @@ def save_model(pipeline: Pipeline, path: str, metadata: Optional[Dict[str, Any]]
     joblib.dump(model_data, path)
 
     logger.info(f"Model saved to: {path}")
-    print(f"Model saved to: {path}")
 
 
 def load_model(path: str) -> Tuple[Pipeline, Dict[str, Any]]:

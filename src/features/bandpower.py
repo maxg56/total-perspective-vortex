@@ -72,10 +72,11 @@ class BandPowerExtractor(BaseEstimator, TransformerMixin):
 
             b, a = signal.butter(4, [low_norm, high_norm], btype='band')
 
-            for epoch_idx in range(n_epochs):
-                for ch_idx in range(n_channels):
-                    filtered = signal.filtfilt(b, a, X[epoch_idx, ch_idx, :])
-                    power = np.var(filtered)
-                    features[epoch_idx, ch_idx * n_bands + band_idx] = power
+            # filtfilt handles ND arrays along axis=-1 -> (n_epochs, n_channels, n_times)
+            filtered = signal.filtfilt(b, a, X, axis=-1)
+            # Variance over time -> (n_epochs, n_channels)
+            power = np.var(filtered, axis=-1)
+            # Layout: features[:, ch * n_bands + band_idx] for all ch
+            features[:, band_idx::n_bands] = power
 
         return features

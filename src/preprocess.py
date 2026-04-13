@@ -269,6 +269,9 @@ def load_multiple_subjects(
             print(f"Error loading subject {subject}: {e}")
             continue
 
+    if not X_all:
+        raise ValueError("Failed to load any subjects")
+
     X = np.concatenate(X_all, axis=0)
     y = np.concatenate(y_all, axis=0)
 

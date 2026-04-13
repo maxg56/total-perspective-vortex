@@ -66,6 +66,24 @@ class TestMyCSPFit:
         with pytest.raises(ValueError, match="CSP requires exactly 2 classes"):
             csp.fit(X, y)
 
+    def test_fit_raises_for_single_class(self):
+        """Test that fit raises error when only one class is present."""
+        from transforms import MyCSP
+
+        X = np.random.randn(10, 8, 100)
+        y = np.ones(10)
+        csp = MyCSP()
+
+        with pytest.raises(ValueError, match="CSP requires exactly 2 classes"):
+            csp.fit(X, y)
+
+    def test_negative_reg_raises_error(self):
+        """Test that negative reg raises ValueError at construction."""
+        from transforms import MyCSP
+
+        with pytest.raises(ValueError, match="reg must be non-negative"):
+            MyCSP(reg=-0.1)
+
     def test_fit_with_regularization(self, synthetic_eeg_data):
         """Test CSP fit with regularization parameter."""
         from transforms import MyCSP

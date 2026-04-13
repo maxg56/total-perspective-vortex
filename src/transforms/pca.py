@@ -111,4 +111,4 @@ class MyPCA(BaseEstimator, TransformerMixin):
             Transformed data of shape (n_samples, n_components)
         """
         X_centered = X - self.mean_
-        return np.dot(X_centered, self.components_)
+        return np.dot(X_centered, self.components_).astype(np.float64)
