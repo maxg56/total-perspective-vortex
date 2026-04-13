@@ -25,7 +25,7 @@ MIN_SUBJECT: Final[int] = 1
 MAX_SUBJECT: Final[int] = 109
 
 # Valid run numbers for the dataset
-VALID_RUNS: Final[tuple] = (3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
+VALID_RUNS: Final[Tuple[int, ...]] = (3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)
 
 # Default values for demo/testing
 DEFAULT_SUBJECT: Final[int] = 4
