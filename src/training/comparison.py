@@ -70,7 +70,7 @@ def compare_pipelines(
             if verbose:
                 display.print_pipeline_result(name, scores)
 
-        except (ValueError, RuntimeError, TypeError) as e:
+        except Exception as e:
             logger.warning(f"Pipeline {name} failed: {e}")
             if verbose:
                 print(f"\n{name}: FAILED - {e}")
@@ -79,10 +79,9 @@ def compare_pipelines(
     valid_results = {k: v for k, v in results.items() if v is not None}
     if not valid_results:
         raise RuntimeError("All pipelines failed during comparison")
-    if valid_results:
-        best = max(valid_results.items(), key=lambda x: x[1]['mean'])
-        if verbose:
-            display.print_best_pipeline(best[0], best[1]['mean'])
+    best = max(valid_results.items(), key=lambda x: x[1]['mean'])
+    if verbose:
+        display.print_best_pipeline(best[0], best[1]['mean'])
 
     # Plot results
     if plot and valid_results:

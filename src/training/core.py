@@ -64,6 +64,11 @@ def train_and_evaluate(X: NDArray[np.float64], y: NDArray[np.int64],
     # Cross-validation — cap folds to min class count to avoid degenerate splits
     _, class_counts = np.unique(y, return_counts=True)
     n_splits = max(2, min(cv, int(class_counts.min())))
+    if n_splits < cv:
+        logger.warning(
+            "Requested %d CV folds but only %d available (min class count = %d). "
+            "Using %d folds.", cv, n_splits, int(class_counts.min()), n_splits
+        )
     cv_splitter = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
     scores = cross_val_score(pipeline, X, y, cv=cv_splitter, scoring='accuracy')
 
@@ -128,9 +133,8 @@ def train_with_holdout(X: NDArray[np.float64], y: NDArray[np.int64],
     )
 
     if verbose:
-        print("\nData split:")
-        print(f"  Training: {len(y_train)} epochs")
-        print(f"  Test: {len(y_test)} epochs")
+        logger.info("Data split: training=%d epochs, test=%d epochs",
+                    len(y_train), len(y_test))
 
     # Build pipeline
     pipeline = get_pipeline(pipeline_name, **pipeline_kwargs)
@@ -138,14 +142,16 @@ def train_with_holdout(X: NDArray[np.float64], y: NDArray[np.int64],
     # Cross-validation on training set — cap folds to min class count
     _, train_class_counts = np.unique(y_train, return_counts=True)
     n_splits = max(2, min(cv, int(train_class_counts.min())))
+    if n_splits < cv:
+        logger.warning(
+            "Requested %d CV folds but only %d available (min class count = %d). "
+            "Using %d folds.", cv, n_splits, int(train_class_counts.min()), n_splits
+        )
     cv_splitter = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_STATE)
     cv_scores = cross_val_score(pipeline, X_train, y_train, cv=cv_splitter, scoring='accuracy')
 
     if verbose:
-        print("\nCross-validation on training set:")
-        print(f"  Scores: {cv_scores}")
-        std_dev = cv_scores.std() * 2
-        print(f"  Mean: {cv_scores.mean():.4f} (+/- {std_dev:.4f})")
+        display.print_cv_result(cv_scores, f"{pipeline_name} (training CV)", TARGET_ACCURACY)
 
     # Fit on all training data
     pipeline.fit(X_train, y_train)
@@ -155,20 +161,15 @@ def train_with_holdout(X: NDArray[np.float64], y: NDArray[np.int64],
     test_accuracy = accuracy_score(y_test, y_pred)
 
     if verbose:
-        print("\nTest set evaluation:")
-        print(f"  Accuracy: {test_accuracy:.4f}")
-        print("\nClassification report:")
-        print(classification_report(y_test, y_pred))
-        print("\nConfusion matrix:")
-        print(confusion_matrix(y_test, y_pred))
+        logger.info("Test set accuracy: %.4f", test_accuracy)
+        logger.info("Classification report:\n%s", classification_report(y_test, y_pred))
+        logger.info("Confusion matrix:\n%s", confusion_matrix(y_test, y_pred))
 
-        # Check if target achieved
         if test_accuracy >= TARGET_ACCURACY:
-            msg = f"\nTarget accuracy ({TARGET_ACCURACY:.0%}) ACHIEVED on test set"
-            print(msg)
+            logger.info("Target accuracy (%s) ACHIEVED on test set", f"{TARGET_ACCURACY:.0%}")
         else:
-            msg = f"\nTarget accuracy ({TARGET_ACCURACY:.0%}) NOT achieved on test set"
-            print(msg)
+            logger.info("Target accuracy (%s) NOT achieved on test set",
+                        f"{TARGET_ACCURACY:.0%}")
 
     # Plot results
     if plot:
