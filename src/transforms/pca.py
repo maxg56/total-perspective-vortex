@@ -4,7 +4,7 @@ Custom PCA (Principal Component Analysis) implementation.
 An alternative dimensionality reduction method for EEG data.
 """
 
-from typing import Optional
+from typing import Optional, cast
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -46,7 +46,8 @@ class MyPCA(BaseEstimator, TransformerMixin):
         ----------
         X : np.ndarray
             Data of shape (n_samples, n_features)
-        y : ignored
+        y : np.ndarray, optional
+            Ignored. Present for sklearn API compatibility.
 
         Returns
         -------
@@ -78,9 +79,14 @@ class MyPCA(BaseEstimator, TransformerMixin):
             eigenvalues = eigenvalues[sorted_idx]
             U = U[:, sorted_idx]
 
+            if self.n_components > n_samples:
+                raise ValueError(
+                    f"n_components ({self.n_components}) > n_samples ({n_samples})"
+                )
+
             # Recover eigenvectors in feature space: v = X^T u / (sqrt(lambda * (n-1)))
-            components = np.zeros((n_features, min(n_samples, self.n_components)))
-            for i in range(min(n_samples, self.n_components)):
+            components = np.zeros((n_features, self.n_components))
+            for i in range(self.n_components):
                 if eigenvalues[i] > EPSILON:
                     v = X_centered.T @ U[:, i]
                     v = v / (np.sqrt(eigenvalues[i] * (n_samples - 1))
@@ -111,4 +117,4 @@ class MyPCA(BaseEstimator, TransformerMixin):
             Transformed data of shape (n_samples, n_components)
         """
         X_centered = X - self.mean_
-        return np.dot(X_centered, self.components_).astype(np.float64)
+        return cast(np.ndarray, np.dot(X_centered, self.components_).astype(np.float64))

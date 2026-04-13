@@ -23,8 +23,11 @@ are the most discriminative spatial filters.
 """
 
 from typing import Optional
+import logging
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
+
+logger = logging.getLogger(__name__)
 
 from constants import EPSILON
 from transforms.linalg import my_eigh_generalized
@@ -87,7 +90,7 @@ class MyCSP(BaseEstimator, TransformerMixin):
             traces = np.trace(covs, axis1=1, axis2=2)
             covs = covs / traces[:, np.newaxis, np.newaxis]
         # Average across epochs
-        avg_cov = np.mean(covs, axis=0)
+        avg_cov: np.ndarray = np.mean(covs, axis=0)
 
         # Apply regularization if specified
         if self.reg is not None:
@@ -169,6 +172,11 @@ class MyCSP(BaseEstimator, TransformerMixin):
         if not hasattr(self, 'W_'):
             raise RuntimeError("CSP not fitted. Call fit() first.")
 
+        if X.ndim != 3:
+            raise ValueError(
+                f"Expected 3D input (n_epochs, n_channels, n_times), got {X.ndim}D"
+            )
+
         # Apply spatial filters: X_filtered = W.T @ X
         # Shape: (n_epochs, n_components, n_times)
         # Vectorized spatial filtering using einsum
@@ -179,13 +187,22 @@ class MyCSP(BaseEstimator, TransformerMixin):
 
         # Normalize variances (protect against division by zero)
         variance_sum = variances.sum(axis=1, keepdims=True)
+        zero_epochs = np.flatnonzero((variance_sum.squeeze(axis=1)) == 0)
+        if zero_epochs.size > 0:
+            logger.warning(
+                "Epochs %s have zero total variance (constant signal); "
+                "normalized variances will not sum to 1 for these epochs.",
+                zero_epochs.tolist(),
+            )
         variances /= (variance_sum + EPSILON)
 
+        out: np.ndarray
         if self.log:
             # Log-transform (common for CSP features)
-            return np.log(variances + EPSILON).astype(np.float64)
+            out = np.log(variances + EPSILON).astype(np.float64)
         else:
-            return variances.astype(np.float64)
+            out = variances.astype(np.float64)
+        return out
 
     def fit_transform(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
         """
@@ -203,4 +220,5 @@ class MyCSP(BaseEstimator, TransformerMixin):
         X_csp : np.ndarray
             CSP features of shape (n_epochs, n_components)
         """
-        return self.fit(X, y).transform(X)
+        result: np.ndarray = self.fit(X, y).transform(X)
+        return result
