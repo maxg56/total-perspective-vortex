@@ -5,7 +5,7 @@ description = "EEG Brain-Computer Interface for motor imagery classification"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "pytest>=9.0.2",
+    "pytest>=9.0.3",
     "numpy>=1.26",
     "scipy>=1.11",
     "mne>=1.6",
@@ -19,7 +19,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pytest>=7.0",
+    "pytest>=9.0.3",
     "pytest-cov>=4.0",
     "pytest-mock>=3.0",
     "flake8>=6.0",
