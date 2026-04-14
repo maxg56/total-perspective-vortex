@@ -55,6 +55,9 @@ class MyPCA(BaseEstimator, TransformerMixin):
         """
         n_samples, n_features = X.shape
 
+        # Clamp n_components to what is actually achievable
+        n_components = min(self.n_components, n_samples, n_features)
+
         # Center the data
         self.mean_ = np.mean(X, axis=0)
         X_centered = X - self.mean_
@@ -68,7 +71,7 @@ class MyPCA(BaseEstimator, TransformerMixin):
             eigenvalues = eigenvalues[sorted_idx]
             eigenvectors = eigenvectors[:, sorted_idx]
 
-            self.components_ = eigenvectors[:, :self.n_components]
+            self.components_ = eigenvectors[:, :n_components]
         else:
             # Dual trick: eigendecompose X X^T (n_samples x n_samples)
             # when n_features >> n_samples, this is much faster
@@ -79,26 +82,22 @@ class MyPCA(BaseEstimator, TransformerMixin):
             eigenvalues = eigenvalues[sorted_idx]
             U = U[:, sorted_idx]
 
-            if self.n_components > n_samples:
-                raise ValueError(
-                    f"n_components ({self.n_components}) > n_samples ({n_samples})"
-                )
-
             # Recover eigenvectors in feature space: v = X^T u / (sqrt(lambda * (n-1)))
-            components = np.zeros((n_features, self.n_components))
-            for i in range(self.n_components):
+            components = np.zeros((n_features, n_components))
+            for i in range(n_components):
                 if eigenvalues[i] > EPSILON:
                     v = X_centered.T @ U[:, i]
                     v = v / (np.sqrt(eigenvalues[i] * (n_samples - 1))
                              + EPSILON)
                     components[:, i] = v
-            self.components_ = components[:, :self.n_components]
+            self.components_ = components[:, :n_components]
 
-        self.explained_variance_ = eigenvalues[:self.n_components]
+        self.explained_variance_ = eigenvalues[:n_components]
         total_var: float = float(np.sum(np.maximum(eigenvalues, 0.0)))
         self.explained_variance_ratio_ = (
             self.explained_variance_ / (total_var + EPSILON)
         )
+        self.n_components_ = n_components
 
         return self
 
