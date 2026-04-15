@@ -33,10 +33,12 @@ import argparse
 import logging
 import traceback
 
-# Add src directory to path for imports.
-# NOTE: must be invoked from the src/ directory (or via an absolute path)
-# because relative paths for models/, plots/, and data/ are resolved from cwd.
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add src directory to path for imports and set it as working directory so that
+# relative paths (models/, plots/, data/) resolve correctly regardless of where
+# the script is invoked from.
+_SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, _SRC_DIR)
+os.chdir(_SRC_DIR)
 
 from constants import (MIN_SUBJECT, MAX_SUBJECT, VALID_RUNS,  # noqa: E402
                        EXPERIMENT_TARGETS, RUN_TO_EXPERIMENT, TARGET_ACCURACY)
@@ -111,6 +113,8 @@ Examples:
                         help='Disable plot generation')
     parser.add_argument('--save-plots', action='store_true',
                         help='Save plots to disk (plots/ directory)')
+    parser.add_argument('--show-plots', action='store_true',
+                        help='Show plots interactively in a window')
 
     return parser.parse_args()
 
@@ -135,6 +139,7 @@ def mode_train(args: argparse.Namespace) -> int:
     verbose = not args.quiet
     plot = not args.no_plot
     save_plots = args.save_plots
+    show_plots = args.show_plots
 
     if args.compare:
         print("\nLoading and preprocessing data...")
@@ -143,7 +148,7 @@ def mode_train(args: argparse.Namespace) -> int:
 
         results = compare_pipelines(
             X, y, cv=args.cv, verbose=verbose,
-            plot=plot, save_plots=save_plots)
+            plot=plot, save_plots=save_plots, show_plots=show_plots)
 
         valid_results = {k: v for k, v in results.items() if v is not None}
         if valid_results:
@@ -165,6 +170,7 @@ def mode_train(args: argparse.Namespace) -> int:
         cv=args.cv,
         plot=plot,
         save_plots=save_plots,
+        show_plots=show_plots,
         **pipeline_kwargs
     )
 

@@ -8,7 +8,8 @@ import logging
 from typing import Tuple, Any
 import numpy as np
 from numpy.typing import NDArray
-from sklearn.model_selection import cross_val_score, StratifiedKFold, train_test_split
+from sklearn.model_selection import (cross_val_score, cross_val_predict,
+                                     StratifiedKFold, train_test_split)
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.pipeline import Pipeline
 
@@ -16,7 +17,9 @@ import display
 from constants import RANDOM_STATE, TARGET_ACCURACY
 from pipeline import get_pipeline
 from visualization import (plot_cv_scores, plot_confusion_matrix,
-                           plot_training_summary)
+                           plot_training_summary, plot_csp_filters,
+                           plot_learning_curve, plot_class_metrics,
+                           plot_roc_curve)
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -28,6 +31,7 @@ def train_and_evaluate(X: NDArray[np.float64], y: NDArray[np.int64],
                        verbose: bool = True,
                        plot: bool = True,
                        save_plots: bool = False,
+                       show_plots: bool = False,
                        **pipeline_kwargs: Any) -> Tuple[Pipeline, NDArray[np.float64]]:
     """
     Train a pipeline with cross-validation.
@@ -81,7 +85,69 @@ def train_and_evaluate(X: NDArray[np.float64], y: NDArray[np.int64],
     # Plot results
     if plot:
         save_path = f"plots/cv_scores_{pipeline_name}.png" if save_plots else None
-        plot_cv_scores(scores, title=f"CV Scores: {pipeline_name}", save_path=save_path)
+        plot_cv_scores(scores, title=f"CV Scores: {pipeline_name}",
+                       save_path=save_path, show=show_plots)
+
+        # CSP spatial filters (only when the pipeline contains a CSP step)
+        if 'csp' in pipeline.named_steps:
+            csp_step = pipeline.named_steps['csp']
+            csp_save = f"plots/csp_filters_{pipeline_name}.png" if save_plots else None
+            plot_csp_filters(
+                csp_step.W_, csp_step.eigenvalues_,
+                title=f"CSP Filters: {pipeline_name}",
+                save_path=csp_save, show=show_plots,
+            )
+
+        # Learning curves
+        try:
+            lc_save = f"plots/learning_curve_{pipeline_name}.png" if save_plots else None
+            plot_learning_curve(
+                get_pipeline(pipeline_name, **pipeline_kwargs),
+                X, y, cv=n_splits,
+                title=f"Learning Curve: {pipeline_name}",
+                save_path=lc_save, show=show_plots,
+            )
+        except Exception as e:
+            logger.warning("Learning curve plot skipped: %s", e)
+
+        # OOF predictions for per-class metrics and ROC
+        try:
+            y_pred_oof = cross_val_predict(
+                get_pipeline(pipeline_name, **pipeline_kwargs), X, y, cv=cv_splitter
+            )
+            metrics_save = f"plots/class_metrics_{pipeline_name}.png" if save_plots else None
+            plot_class_metrics(
+                y, y_pred_oof,
+                title=f"Per-Class Metrics: {pipeline_name}",
+                save_path=metrics_save, show=show_plots,
+            )
+
+            # ROC curve — try decision_function first, then predict_proba
+            roc_save = f"plots/roc_curve_{pipeline_name}.png" if save_plots else None
+            y_score = None
+            try:
+                y_score = cross_val_predict(
+                    get_pipeline(pipeline_name, **pipeline_kwargs),
+                    X, y, cv=cv_splitter, method='decision_function'
+                )
+            except (AttributeError, ValueError):
+                try:
+                    y_proba = cross_val_predict(
+                        get_pipeline(pipeline_name, **pipeline_kwargs),
+                        X, y, cv=cv_splitter, method='predict_proba'
+                    )
+                    y_score = y_proba[:, 1]
+                except (AttributeError, ValueError):
+                    pass
+
+            if y_score is not None:
+                plot_roc_curve(
+                    y, y_score,
+                    title=f"ROC Curve: {pipeline_name}",
+                    save_path=roc_save, show=show_plots,
+                )
+        except Exception as e:
+            logger.warning("OOF metrics plots skipped: %s", e)
 
     return pipeline, scores
 

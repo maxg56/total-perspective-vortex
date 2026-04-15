@@ -30,5 +30,5 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies: [numpy]
-        args: ['--config-file=setup.cfg', '--ignore-missing-imports']
-        exclude: '^tests/'
+        args: ['--config-file=setup.cfg', '--ignore-missing-imports', 'src/']
+        pass_filenames: false

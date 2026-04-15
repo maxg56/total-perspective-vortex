@@ -22,7 +22,8 @@ logger = logging.getLogger(__name__)
 def compare_pipelines(
         X: NDArray[np.float64], y: NDArray[np.int64],
         cv: int = 5, verbose: bool = True,
-        plot: bool = True, save_plots: bool = False
+        plot: bool = True, save_plots: bool = False,
+        show_plots: bool = False,
 ) -> Dict[str, Optional[Dict[str, Any]]]:
     """
     Compare all available pipelines.
@@ -87,10 +88,10 @@ def compare_pipelines(
     if plot:
         # Bar plot comparison
         comp_save = "plots/pipeline_comparison.png" if save_plots else None
-        plot_pipeline_comparison(valid_results, save_path=comp_save)
+        plot_pipeline_comparison(valid_results, save_path=comp_save, show=show_plots)
 
         # Detailed box plot
         detail_save = "plots/pipeline_comparison_detailed.png" if save_plots else None
-        plot_cv_detailed(valid_results, save_path=detail_save)
+        plot_cv_detailed(valid_results, save_path=detail_save, show=show_plots)
 
     return results

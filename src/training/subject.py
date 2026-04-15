@@ -22,6 +22,7 @@ def train_subject(subject: int, runs: List[int],
                   cv: int = 5,
                   plot: bool = True,
                   save_plots: bool = False,
+                  show_plots: bool = False,
                   **pipeline_kwargs: Any) -> Tuple[Pipeline, NDArray[np.float64]]:
     """
     Complete training pipeline for a subject.
@@ -63,7 +64,8 @@ def train_subject(subject: int, runs: List[int],
     # Train and evaluate
     pipeline, scores = train_and_evaluate(
         X, y, pipeline_name=pipeline_name, cv=cv,
-        plot=plot, save_plots=save_plots, **pipeline_kwargs
+        plot=plot, save_plots=save_plots, show_plots=show_plots,
+        **pipeline_kwargs
     )
 
     # Save model

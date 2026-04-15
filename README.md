@@ -46,12 +46,11 @@ uv sync
 
 ## Usage
 
+All commands can be run from the **project root** (no need to `cd src`):
+
 ### Training
 
-Train a model on a specific subject and run:
-
 ```bash
-cd src
 uv run python mybci.py <subject> <run> train
 ```
 
@@ -61,8 +60,6 @@ uv run python mybci.py 4 14 train
 ```
 
 ### Prediction
-
-Run prediction with a trained model:
 
 ```bash
 uv run python mybci.py <subject> <run> predict
@@ -75,13 +72,19 @@ uv run python mybci.py 4 14 predict
 
 ### Options
 
-```
---pipeline, -p     Pipeline to use (see available pipelines below)
---cv               Number of cross-validation folds (default: 5)
---compare          Compare all pipelines and use the best
---n-components     Number of CSP/PCA components (default: 6)
---model-dir        Directory for saved models (default: models)
-```
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--pipeline, -p` | `csp_lda` | Pipeline to use (see table below) |
+| `--cv` | `5` | Number of cross-validation folds |
+| `--compare` | — | Compare all pipelines and select the best |
+| `--n-components` | `6` | Number of CSP/PCA components |
+| `--reg` | `None` | CSP regularization parameter |
+| `--model-dir` | `models` | Directory for saved models |
+| `--model-path` | — | Specific model path (predict mode only) |
+| `--save-plots` | — | Save visualizations to `plots/` |
+| `--show-plots` | — | Display plots interactively (requires a GUI toolkit) |
+| `--no-plot` | — | Disable all plot generation |
+| `--quiet, -q` | — | Reduce output verbosity |
 
 ### Available Pipelines
 
@@ -100,24 +103,30 @@ uv run python mybci.py 4 14 predict
 
 ### Visualization
 
-Training and prediction commands support optional plot generation:
-
 ```bash
-# Save plots to disk during training
-cd src
+# Save all plots during training
 uv run python mybci.py 4 14 train --save-plots
+
+# Save and display interactively (requires Tk, Qt, GTK or WX)
+uv run python mybci.py 4 14 train --save-plots --show-plots
 
 # Compare all pipelines with plots
 uv run python mybci.py 4 14 train --compare --save-plots
 ```
 
-Available visualizations:
-- **Cross-validation scores**: Bar chart showing accuracy for each CV fold
-- **Confusion matrix**: Heatmap of prediction results on test set
-- **Training summary**: Comprehensive 3-panel view with CV scores, confusion matrix, and per-class accuracy
-- **Pipeline comparison**: Compare performance of different models (when using `--compare`)
+The following plots are generated automatically during training and saved to `plots/`:
 
-Plots are saved to the `plots/` directory.
+| File | Content |
+|------|---------|
+| `cv_scores_{pipeline}.png` | Per-fold cross-validation accuracy |
+| `csp_filters_{pipeline}.png` | CSP spatial filter weights and eigenvalues (CSP pipelines only) |
+| `learning_curve_{pipeline}.png` | Training vs. CV accuracy as a function of dataset size |
+| `class_metrics_{pipeline}.png` | Precision, recall, and F1-score per class |
+| `roc_curve_{pipeline}.png` | ROC curve with AUC score |
+| `pipeline_comparison.png` | Mean accuracy across all pipelines (`--compare` mode) |
+| `pipeline_comparison_detailed.png` | Box plots of per-fold scores across pipelines (`--compare` mode) |
+
+> **Note on `--show-plots`**: interactive display requires a GUI toolkit (Tk, Qt5, GTK4, or WX) installed in the environment. On Arch Linux: `sudo pacman -S python-pyqt6`. If no toolkit is found, plots are saved to disk instead.
 
 ## Run Types
 
@@ -131,6 +140,7 @@ Plots are saved to the `plots/` directory.
 ## Project Structure
 
 ```
+mybci.py                  # Root-level entry point (delegates to src/mybci.py)
 src/
 ├── mybci.py              # Main CLI entry point
 ├── preprocess.py         # Data loading and bandpass filtering (7-30 Hz)
@@ -151,17 +161,22 @@ src/
 │   ├── comparison.py     # Multi-pipeline comparison
 │   └── persistence.py    # Model saving/loading with joblib
 └── visualization/
-    ├── cv_plots.py        # Cross-validation score plots
-    ├── metrics_plots.py   # Confusion matrices and classification reports
-    └── comparison_plots.py  # Pipeline comparison charts
+    ├── _base.py              # Backend selection and shared helpers
+    ├── cv_plots.py           # Cross-validation score plots
+    ├── metrics_plots.py      # Confusion matrices and training summaries
+    ├── comparison_plots.py   # Pipeline comparison charts
+    ├── csp_plots.py          # CSP spatial filter visualization
+    ├── learning_curve_plots.py  # Learning curve plots
+    └── advanced_metrics_plots.py  # Per-class metrics and ROC/AUC curves
 
 models/             # Saved models (model_s{subject}_r{run}_{pipeline}.pkl)
 plots/              # Generated visualization plots
+tests/              # Test suite (303 tests)
 ```
 
 ## Testing
 
-The project includes a comprehensive test suite with 270 tests using pytest.
+The project includes a comprehensive test suite with **303 tests** using pytest.
 
 ### Running Tests
 
@@ -175,7 +190,6 @@ uv run pytest tests/transforms/test_csp.py -v
 # Run with coverage
 uv run pytest tests/ --cov=src --cov-report=html
 ```
-
 
 ### Synthetic Data
 
@@ -211,7 +225,6 @@ Tests use synthetic EEG data to avoid downloading from Physionet during testing.
 
 ```bash
 # Subject 1, Run 6 (hands vs feet motor imagery)
-cd src
 uv run python mybci.py 1 6 train --cv 5
 uv run python mybci.py 1 6 predict
 
