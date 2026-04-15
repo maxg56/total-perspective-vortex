@@ -186,9 +186,10 @@ def run_prediction(subject: int, runs: List[int],
     """
     # Construct model path if not provided
     if model_path is None:
+        runs_str = "-".join(str(r) for r in runs)
         model_path = os.path.join(
             model_dir,
-            f"model_s{subject}_r{runs[0]}_{pipeline_name}.pkl"
+            f"model_s{subject}_r{runs_str}_{pipeline_name}.pkl"
         )
 
     if verbose:

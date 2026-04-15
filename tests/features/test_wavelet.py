@@ -140,21 +140,21 @@ class TestMorletWavelet:
 
     def test_morlet_shape(self):
         """Test Morlet wavelet output shape."""
-        from features import _morlet_wavelet
+        from features.wavelet import _morlet_wavelet
 
         wavelet = _morlet_wavelet(n_points=256, scale=5.0, fs=160.0)
         assert wavelet.shape == (256,)
 
     def test_morlet_is_complex(self):
         """Test that Morlet wavelet is complex-valued."""
-        from features import _morlet_wavelet
+        from features.wavelet import _morlet_wavelet
 
         wavelet = _morlet_wavelet(n_points=256, scale=5.0, fs=160.0)
         assert np.iscomplexobj(wavelet)
 
     def test_morlet_finite(self):
         """Test that Morlet wavelet has no NaN or Inf values."""
-        from features import _morlet_wavelet
+        from features.wavelet import _morlet_wavelet
 
         wavelet = _morlet_wavelet(n_points=256, scale=5.0, fs=160.0)
         assert np.all(np.isfinite(wavelet))
@@ -165,7 +165,7 @@ class TestCWT:
 
     def test_cwt_output_shape(self):
         """Test CWT output shape."""
-        from features import _cwt_morlet
+        from features.wavelet import _cwt_morlet
 
         x = np.random.randn(160)
         scales = np.array([2.0, 4.0, 8.0])
@@ -174,7 +174,7 @@ class TestCWT:
 
     def test_cwt_positive_magnitude(self):
         """Test that CWT magnitude coefficients are non-negative."""
-        from features import _cwt_morlet
+        from features.wavelet import _cwt_morlet
 
         x = np.random.randn(160)
         scales = np.array([2.0, 4.0, 8.0])
@@ -183,7 +183,7 @@ class TestCWT:
 
     def test_cwt_no_nan(self):
         """Test that CWT produces no NaN values."""
-        from features import _cwt_morlet
+        from features.wavelet import _cwt_morlet
 
         x = np.random.randn(160)
         scales = np.array([2.0, 4.0, 8.0])
@@ -192,7 +192,7 @@ class TestCWT:
 
     def test_cwt_sinusoidal_signal(self):
         """Test CWT detects known frequency in sinusoidal signal."""
-        from features import _cwt_morlet, _freq_to_scale
+        from features.wavelet import _cwt_morlet, _freq_to_scale
 
         fs = 160.0
         t = np.arange(0, 1.0, 1.0 / fs)

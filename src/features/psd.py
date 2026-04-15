@@ -63,6 +63,10 @@ class PSDExtractor(BaseEstimator, TransformerMixin):
         features : np.ndarray
             PSD features of shape (n_epochs, n_channels * n_bands)
         """
+        if X.ndim != 3:
+            raise ValueError(
+                f"Expected 3D input (n_epochs, n_channels, n_times), got {X.ndim}D"
+            )
         n_epochs, n_channels, n_times = X.shape
         n_bands = len(self.freq_bands)
         features = np.zeros((n_epochs, n_channels * n_bands))

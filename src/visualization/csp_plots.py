@@ -15,6 +15,7 @@ from constants import (
     PLOT_FONTSIZE_TITLE,
     PLOT_FONTSIZE_LEGEND,
     PLOT_FONTSIZE_SMALL,
+    PLOT_TEXT_OFFSET,
 )
 from visualization._base import _finalize_plot
 
@@ -77,7 +78,7 @@ def plot_csp_filters(W: np.ndarray,
     # Label each bar
     for bar, val in zip(bars, eigenvalues):
         ax2.text(bar.get_x() + bar.get_width() / 2,
-                 bar.get_height() + 0.005,
+                 bar.get_height() + PLOT_TEXT_OFFSET,
                  f'{val:.3f}',
                  ha='center', va='bottom', fontsize=PLOT_FONTSIZE_SMALL)
 

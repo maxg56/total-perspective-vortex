@@ -15,6 +15,8 @@ import mne
 from mne.datasets import eegbci
 from mne.io import concatenate_raws, read_raw_edf
 
+from constants import EEG_BANDPASS_LOW, EEG_BANDPASS_HIGH
+
 
 # Physionet EEGMMIDB run descriptions:
 # Runs 1, 2: Baseline (eyes open, eyes closed)
@@ -73,7 +75,9 @@ def load_raw_data(subject: int, runs: List[int]) -> mne.io.Raw:
     return raw
 
 
-def filter_raw(raw: mne.io.Raw, l_freq: float = 7.0, h_freq: float = 30.0) -> mne.io.Raw:
+def filter_raw(raw: mne.io.Raw,
+               l_freq: float = EEG_BANDPASS_LOW,
+               h_freq: float = EEG_BANDPASS_HIGH) -> mne.io.Raw:
     """
     Apply bandpass filter to raw EEG data.
 
@@ -165,7 +169,7 @@ def get_run_type(run: int) -> str:
 
 def preprocess_subject(
         subject: int, runs: List[int],
-        l_freq: float = 7.0, h_freq: float = 30.0,
+        l_freq: float = EEG_BANDPASS_LOW, h_freq: float = EEG_BANDPASS_HIGH,
         tmin: float = 0.0, tmax: float = 3.0
 ) -> Tuple[NDArray[np.float64], NDArray[np.int64], mne.Epochs]:
     """
@@ -225,7 +229,7 @@ def preprocess_subject(
 
 def load_multiple_subjects(
         subjects: List[int], runs: List[int],
-        l_freq: float = 7.0, h_freq: float = 30.0,
+        l_freq: float = EEG_BANDPASS_LOW, h_freq: float = EEG_BANDPASS_HIGH,
         tmin: float = 0.0, tmax: float = 3.0
 ) -> Tuple[NDArray[np.float64], NDArray[np.int64]]:
     """
@@ -261,9 +265,9 @@ def load_multiple_subjects(
             X, y, _ = preprocess_subject(subject, runs, l_freq, h_freq, tmin, tmax)
             X_all.append(X)
             y_all.append(y)
-            logger.info(f"Subject {subject}: {len(y)} epochs loaded")
+            logger.info("Subject %d: %d epochs loaded", subject, len(y))
         except (OSError, ValueError, RuntimeError) as e:
-            logger.warning(f"Error loading subject {subject}: {e}")
+            logger.warning("Error loading subject %d: %s", subject, e)
             continue
 
     if not X_all:

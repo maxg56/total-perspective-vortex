@@ -98,7 +98,7 @@ def print_prediction_summary(
     print(f"Average prediction time: {results['avg_time'] * 1000:.2f} ms")
     print(f"Max prediction time: {results['max_time'] * 1000:.2f} ms")
     status = 'PASSED' if results['within_time_limit'] else 'FAILED'
-    print(f"Time limit (2s): {status}")
+    print(f"Time limit ({MAX_PREDICTION_TIME}s): {status}")
     if results['accuracy'] >= exp_target:
         print(f"\n*** TARGET ACCURACY (exp {exp_idx}: {exp_target:.0%}) ACHIEVED! ***")
     else:

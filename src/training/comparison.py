@@ -72,7 +72,7 @@ def compare_pipelines(
                 display.print_pipeline_result(name, scores)
 
         except Exception as e:
-            logger.warning(f"Pipeline {name} failed: {e}")
+            logger.warning("Pipeline %s failed: %s", name, e)
             if verbose:
                 print(f"\n{name}: FAILED - {e}")
             results[name] = None

@@ -19,9 +19,6 @@ Modules:
     advanced_metrics_plots: Per-class metrics and ROC (plot_class_metrics, plot_roc_curve)
 """
 
-# Import base utilities
-from visualization._base import _finalize_plot
-
 # Import and re-export all plotting functions
 from visualization.cv_plots import plot_cv_scores, plot_cv_detailed
 from visualization.metrics_plots import plot_confusion_matrix, plot_training_summary
@@ -31,7 +28,6 @@ from visualization.learning_curve_plots import plot_learning_curve
 from visualization.advanced_metrics_plots import plot_class_metrics, plot_roc_curve
 
 __all__ = [
-    '_finalize_plot',
     'plot_cv_scores',
     'plot_cv_detailed',
     'plot_confusion_matrix',

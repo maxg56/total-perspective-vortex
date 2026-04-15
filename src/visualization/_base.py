@@ -12,7 +12,7 @@ import matplotlib
 # Use an interactive backend only when --show-plots is explicitly requested AND
 # a display is available; otherwise stay with the headless Agg backend.
 _WANT_SHOW = '--show-plots' in sys.argv
-_HAS_DISPLAY = bool(os.environ.get('DISPLAY'))
+_HAS_DISPLAY = bool(os.environ.get('DISPLAY') or os.environ.get('WAYLAND_DISPLAY'))
 
 if _WANT_SHOW and _HAS_DISPLAY:
     # Verify each backend by actually importing its module before selecting it,

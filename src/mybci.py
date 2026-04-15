@@ -156,8 +156,9 @@ def mode_train(args: argparse.Namespace) -> int:
             print(f"\nTraining best pipeline: {best_name}")
             args.pipeline = best_name
 
+    _CSP_PIPELINES = {'csp_lda', 'csp_svm', 'csp_lr', 'csp_rf', 'csp_custom'}
     pipeline_kwargs = {}
-    if 'csp' in args.pipeline:
+    if args.pipeline in _CSP_PIPELINES:
         pipeline_kwargs['n_components'] = args.n_components
         if args.reg is not None:
             pipeline_kwargs['reg'] = args.reg
@@ -220,12 +221,12 @@ def main() -> int:
         print("\nInterrupted by user")
         return 1
     except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
+        logger.error("File not found: %s", e)
         print(f"\nError: {e}")
         print("Have you trained a model first? Run: python mybci.py <subject> <run> train")
         return 1
     except Exception as e:
-        logger.exception(f"Unexpected error: {e}")
+        logger.exception("Unexpected error: %s", e)
         print(f"\nError: {e}")
         traceback.print_exc()
         return 1

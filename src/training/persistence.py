@@ -39,7 +39,7 @@ def save_model(pipeline: Pipeline, path: str, metadata: Optional[Dict[str, Any]]
     # Use joblib for safer and more efficient serialization
     joblib.dump(model_data, path)
 
-    logger.info(f"Model saved to: {path}")
+    logger.info("Model saved to: %s", path)
 
 
 def load_model(path: str) -> Tuple[Pipeline, Dict[str, Any]]:

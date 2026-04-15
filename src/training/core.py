@@ -62,7 +62,7 @@ def train_and_evaluate(X: NDArray[np.float64], y: NDArray[np.int64],
     scores : np.ndarray
         Cross-validation scores
     """
-    # Build pipeline
+    # Build pipeline (reused for all CV calls; sklearn clones internally)
     pipeline = get_pipeline(pipeline_name, **pipeline_kwargs)
 
     # Cross-validation — cap folds to min class count to avoid degenerate splits
@@ -98,23 +98,20 @@ def train_and_evaluate(X: NDArray[np.float64], y: NDArray[np.int64],
                 save_path=csp_save, show=show_plots,
             )
 
-        # Learning curves
+        # Learning curves — pipeline is cloned internally by learning_curve
         try:
             lc_save = f"plots/learning_curve_{pipeline_name}.png" if save_plots else None
             plot_learning_curve(
-                get_pipeline(pipeline_name, **pipeline_kwargs),
-                X, y, cv=n_splits,
+                pipeline, X, y, cv=n_splits,
                 title=f"Learning Curve: {pipeline_name}",
                 save_path=lc_save, show=show_plots,
             )
         except Exception as e:
             logger.warning("Learning curve plot skipped: %s", e)
 
-        # OOF predictions for per-class metrics and ROC
+        # OOF predictions for per-class metrics and ROC — pipeline is cloned by cross_val_predict
         try:
-            y_pred_oof = cross_val_predict(
-                get_pipeline(pipeline_name, **pipeline_kwargs), X, y, cv=cv_splitter
-            )
+            y_pred_oof = cross_val_predict(pipeline, X, y, cv=cv_splitter)
             metrics_save = f"plots/class_metrics_{pipeline_name}.png" if save_plots else None
             plot_class_metrics(
                 y, y_pred_oof,
@@ -127,14 +124,12 @@ def train_and_evaluate(X: NDArray[np.float64], y: NDArray[np.int64],
             y_score = None
             try:
                 y_score = cross_val_predict(
-                    get_pipeline(pipeline_name, **pipeline_kwargs),
-                    X, y, cv=cv_splitter, method='decision_function'
+                    pipeline, X, y, cv=cv_splitter, method='decision_function'
                 )
             except (AttributeError, ValueError):
                 try:
                     y_proba = cross_val_predict(
-                        get_pipeline(pipeline_name, **pipeline_kwargs),
-                        X, y, cv=cv_splitter, method='predict_proba'
+                        pipeline, X, y, cv=cv_splitter, method='predict_proba'
                     )
                     y_score = y_proba[:, 1]
                 except (AttributeError, ValueError):
@@ -159,6 +154,7 @@ def train_with_holdout(X: NDArray[np.float64], y: NDArray[np.int64],
                        verbose: bool = True,
                        plot: bool = True,
                        save_plots: bool = False,
+                       show_plots: bool = False,
                        **pipeline_kwargs: Any) -> Tuple[Pipeline, NDArray[np.float64], float]:
     """
     Train a pipeline with holdout test set.
@@ -242,7 +238,7 @@ def train_with_holdout(X: NDArray[np.float64], y: NDArray[np.int64],
         # Plot CV scores
         cv_save = f"plots/cv_scores_{pipeline_name}_holdout.png" if save_plots else None
         cv_title = f"CV Scores (Training Set): {pipeline_name}"
-        plot_cv_scores(cv_scores, title=cv_title, save_path=cv_save)
+        plot_cv_scores(cv_scores, title=cv_title, save_path=cv_save, show=show_plots)
 
         # Plot confusion matrix
         cm_save = f"plots/confusion_matrix_{pipeline_name}.png" if save_plots else None
@@ -250,13 +246,13 @@ def train_with_holdout(X: NDArray[np.float64], y: NDArray[np.int64],
         plot_confusion_matrix(
             y_test, y_pred,
             title=cm_title,
-            save_path=cm_save)
+            save_path=cm_save, show=show_plots)
 
         # Plot comprehensive summary
         summary_save = f"plots/training_summary_{pipeline_name}.png" if save_plots else None
         plot_training_summary(
             cv_scores, y_test, y_pred,
             pipeline_name=pipeline_name,
-            save_path=summary_save)
+            save_path=summary_save, show=show_plots)
 
     return pipeline, cv_scores, test_accuracy
