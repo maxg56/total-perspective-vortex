@@ -64,7 +64,7 @@ def plot_cv_scores(scores: np.ndarray,
     ax.set_xlabel('Fold', fontsize=PLOT_FONTSIZE_LABEL)
     ax.set_ylabel('Accuracy', fontsize=PLOT_FONTSIZE_LABEL)
     ax.set_title(title, fontsize=PLOT_FONTSIZE_TITLE, fontweight='bold')
-    ax.set_ylim([0, 1])
+    ax.set_ylim((0, 1))
     ax.set_xticks(folds)
     ax.legend(fontsize=PLOT_FONTSIZE_LEGEND)
     ax.grid(axis='y', alpha=0.3)
