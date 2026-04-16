@@ -150,7 +150,7 @@ class TestModeTrain:
         args = argparse.Namespace(
             subject=1, run=6, pipeline='csp_lda', cv=2,
             compare=False, model_dir='models', quiet=False,
-            no_plot=True, save_plots=False, n_components=4, reg=None
+            no_plot=True, save_plots=False, show_plots=False, n_components=4, reg=None
         )
 
         with patch('mybci.train_subject', return_value=(MagicMock(), mock_scores)), \
@@ -174,7 +174,7 @@ class TestModeTrain:
         args = argparse.Namespace(
             subject=1, run=6, pipeline='csp_lda', cv=2,
             compare=True, model_dir='models', quiet=False,
-            no_plot=True, save_plots=False, n_components=4, reg=None
+            no_plot=True, save_plots=False, show_plots=False, n_components=4, reg=None
         )
 
         with patch('mybci.preprocess_subject', return_value=(X, y, MagicMock())), \
